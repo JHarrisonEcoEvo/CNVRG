@@ -1,0 +1,52 @@
+Package: CNVRG
+Title: Dirichlet-Multinomial Modeling of Relative Abundance Data
+Version: 0.0.0.9000
+Authors@R: 
+    c(person(given = "Joshua",
+           family = "Harrison",
+           role = c("aut", "cre"),
+           email = "joshua.grant.harrison@gmail.com"),
+      person(given = "Vivaswat",
+           family = "Shastry",
+           role = "aut"),
+      person(given = "W. John",
+           family = "Calder",
+           role = "aut"),
+      person(given = "C. Alex",
+           family = "Buerkle",
+           role = "aut"))
+Author: Joshua Harrison [aut, cre],
+  Vivaswat Shastry [aut],
+  W. John Calder [aut],
+  C. Alex Buerkle [aut]
+Maintainer: Joshua Harrison <joshua.grant.harrison@gmail.com>
+Description: Implements Dirichlet-multinomial modeling of relative abundance data using functionality provided by the Stan software. The purpose of this package is to provide a user-friendly way to interface with Stan that is suitable for those new to R and modeling. For more regarding the modeling mathematics and computational techniques see our publication in Molecular Ecology Resources titled "Dirichlet‐multinomial modelling outperforms alternatives for analysis of ecological count data". Digital object identifier: 10.1111/1755-0998.13128.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Biarch: true
+Depends: 
+    R (>= 3.4.0)
+Imports: 
+    methods,
+    Rcpp (>= 0.12.0),
+    RcppParallel (>= 5.0.1),
+    rstan (>= 2.18.1),
+    rstantools (>= 2.1.1),
+    vegan
+LinkingTo: 
+    BH (>= 1.66.0),
+    Rcpp (>= 0.12.0),
+    RcppEigen (>= 0.3.3.3.0),
+    RcppParallel (>= 5.0.1),
+    rstan (>= 2.18.1),
+    StanHeaders (>= 2.18.0)
+SystemRequirements: GNU make
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: 
+    knitr
+Repository: CRAN
