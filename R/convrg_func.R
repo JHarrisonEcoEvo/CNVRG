@@ -261,19 +261,36 @@ extract_point_estimate <- function(modelOut, countData, treatments){
   if(is.null(names(countData)[2:dim(countData)[2]]) | any(is.na(names(countData)[2:dim(countData)[2]]))){
     print("The names of the count data provided include NA or are NULL. If more informative names are desired for the output then the count matrix should have column names.")
   }
-  if(length(grep("^p\\.", names(modelOut@sim$samples[[1]]))) != 0 & length(grep("^pi\\.", names(modelOut@sim$samples[[1]]))) != 0){
-    return(list(
+  if(modelOut@stan_args[[1]]$method == "variational"){
+    if(length(grep("^p\\.", names(modelOut@sim$samples[[1]]))) != 0 & length(grep("^pi\\.", names(modelOut@sim$samples[[1]]))) != 0){
+      return(list(
         pointEstimates_p = out_ps,
-     pointEstimates_pi = out_pis)
-     )}else if(length(grep("^pi\\.", names(modelOut@sim$samples[[1]]))) != 0 & length(grep("^p\\.", names(modelOut@sim$samples[[1]]))) == 0){
-       return(list(
-         pointEstimates_pi = out_pis)
-     )
-     }else if(length(grep("^pi\\.", names(modelOut@sim$samples[[1]]))) == 0 & length(grep("^p\\.", names(modelOut@sim$samples[[1]]))) != 0){
-       return(list(
-         pointEstimates_p = out_ps)
-       )
-     }
+        pointEstimates_pi = out_pis)
+      )}else if(length(grep("^pi\\.", names(modelOut@sim$samples[[1]]))) != 0 & length(grep("^p\\.", names(modelOut@sim$samples[[1]]))) == 0){
+        return(list(
+          pointEstimates_pi = out_pis)
+        )
+      }else if(length(grep("^pi\\.", names(modelOut@sim$samples[[1]]))) == 0 & length(grep("^p\\.", names(modelOut@sim$samples[[1]]))) != 0){
+        return(list(
+          pointEstimates_p = out_ps)
+        )
+      }
+  }
+  if(modelOut@stan_args[[1]]$method == "sampling"){
+    if(length(grep("^p\\[", names(modelOut@sim$samples[[1]]))) != 0 & length(grep("^pi\\[", names(modelOut@sim$samples[[1]]))) != 0){
+      return(list(
+        pointEstimates_p = out_ps,
+        pointEstimates_pi = out_pis)
+      )}else if(length(grep("^pi\\[", names(modelOut@sim$samples[[1]]))) != 0 & length(grep("^p\\[", names(modelOut@sim$samples[[1]]))) == 0){
+        return(list(
+          pointEstimates_pi = out_pis)
+        )
+      }else if(length(grep("^pi\\[", names(modelOut@sim$samples[[1]]))) == 0 & length(grep("^p\\[", names(modelOut@sim$samples[[1]]))) != 0){
+        return(list(
+          pointEstimates_p = out_ps)
+        )
+      }
+  }
 }
 
 #' Transform data into estimates of absolute abundances using an ISD
