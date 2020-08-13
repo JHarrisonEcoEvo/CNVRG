@@ -64,6 +64,8 @@ diff_abund <- function(model_output, countData){
     pis <- model_output@sim$samples[[1]][grep("pi",names(model_output@sim$samples[[1]]))]
     k <- 1
     treat <- list()
+    treatments <- length(unique(gsub("pi\\.(\\d+)\\.\\d+", "\\1", names(pis))))
+    features <- length(unique(gsub("pi\\.\\d+\\.(\\d+)", "\\1", names(pis))))
     #split by treatment.
     for(i in unique(gsub("pi\\.(\\d+)\\.\\d+","\\1", names(pis)))){
       treat[[k]] <- pis[gsub("pi\\.(\\d+)\\.\\d+","\\1", names(pis)) == i]
@@ -120,7 +122,7 @@ diff_abund <- function(model_output, countData){
 #' names(com_demo) <- rep("name", 10)
 #' out <- varInf(com_demo,starts = c(1,6), ends=c(5,10))
 #' diversity_calc(model_output = out,params = c("pi","p"),
-#' countData = com_demo, entropy_measure = 'shannon',equivalents = T)
+#' countData = com_demo, entropy_measure = 'shannon')
 #' }
 #' @export
 diversity_calc <- function(model_output, countData, params = "pi", entropy_measure = "shannon", equivalents = T){
@@ -207,12 +209,12 @@ diversity_calc <- function(model_output, countData, params = "pi", entropy_measu
 #' @return A dataframe specifying point estimates for each feature in each treatment group.
 #' @examples
 #' \donttest{
-#' com_demo <- matrix(0, nrow = 10, ncol = 10)
+#' com_demo <- data.frame(matrix(0, nrow = 10, ncol = 10))
 #' com_demo[1:5,] <- 3
 #' com_demo[6:10,] <- 7
-#' names(com_demo) <- rep("name", 10)
+#' colnames(com_demo) <- rep("name", 10)
 #' out <- varInf(com_demo,starts = c(1,6), ends=c(5,10))
-#' extract_point_estimate(modelOut = out, countData = com_demo)
+#' extract_point_estimate(modelOut = out, countData = com_demo, treatments = 2)
 #' }
 #' @export
 extract_point_estimate <- function(modelOut, countData, treatments){
@@ -364,13 +366,12 @@ isd_transform <- function(model_output, isd_index, countData){
 #' com_demo[6:10,] <- 7
 #' #These are toy data, many more samples, multiple chains, and a longer burn
 #' #are likely advisable for real data.
-#' fitstan_HMC <- varHMC(com_demo,starts = c(1,6), 
+#' fitstan_HMC <- varHMC(com_demo,starts = c(1,6),
 #' ends=c(5,10),
-#' chains = 1, 
-#' burn = 100, 
-#' samples = 100, 
+#' chains = 1,
+#' burn = 100,
+#' samples = 150,
 #' thinning_rate = 2)
-#' summary(fitstan_HMC, pars = "pi", probs =c(0.025, 0.975))$summary
 #' }
 #' @export
 varHMC <- function(countData,
