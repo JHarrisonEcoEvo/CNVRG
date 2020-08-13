@@ -1,11 +1,13 @@
 ---
 title: "CNVRG vignette"
 author: "Joshua Harrison"
+date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{CNVRG Title}
+  %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  \usepackage[utf8]{inputenc}
 ---
 
 ```{r, include = FALSE}
@@ -21,7 +23,7 @@ library(rstan)
 
 CNVRG is an R package that wraps functionality provided by RStan and Stan in a simple to use interface (Stan Development Team 2018). Credit should be given to the Stan team if CNVRG is used. Additionally, please cite the CNVRG package and associated Molecular Ecology Resources paper (Harrison et al. 2020a). Thanks!
 
-CNVRG facilitates Dirichlet-multinomial modeling of relative abundance data, such as those generated via high-throughput sequencing of microbiomes. We envision the software being of particular use for microbial and community ecologists. The variational inference algorithm provided by Stan extends the utility of the model to modern datasets with many thousands of parameters to estimate.
+CNVRG facilitates Dirichlet multinomial modeling of relative abundance data, such as those generated via sequencing of microbiomes. We envision the software being of particular use for microbial and community ecologists. The variational inference algorithm provided by Stan extends the utility of the model to modern datasets with many thousands of parameters to estimate.
 
 In this vignette, we demonstrate how to use CNVRG on a simple dataset. We urge new users of R to carefully examine the files used. Data must be formatted properly for CNVRG to work!
 
@@ -73,7 +75,7 @@ At the moment, diagnostic tools are not well developed for variational inference
 
 ## Using estimates of relative abundances
 
-If model diagnostics seem sufficient then analyses can be performed using relative abundance estimates. Use the 'extract' function from RStan (e.g., pis <- RStan::extract(modelOut,"pi")) to assign samples for parameters of interest to an object. These samples can then be passed to downstream analyses.
+If model diagnostics seem sufficient then analyses can be performed using relative abundance estimates. Use the 'extract' function from RStan to assign samples for parameters of interest to an object. These samples can then be passed to downstream analyses.
 
 While we advocate using samples describing posterior distributions for parameters of interest whenever possible, we acknowledge that sometimes it is convenient to obtain point estimates for those parameters. To do so for pi parameters we can use the CNVRG function 'extract_point_estimate' like so:
 
@@ -127,7 +129,7 @@ We have provided a simple function in CNVRG called 'isd_transform' that facilita
 transformed_data <- isd_transform(model_output = modelOut, countData = fungi, isd_index = 2)
 ```
 
-It is worth double-checking that the correct index for the ISD was provided. Examine the output and make sure that the field for the index is filled with ones and that field is indeed the ISD. Remember when determining the appropriate index to account for the fact that the original data had sample names in field one (this field should not be counted when determining an appropriate index).
+It is worth checking that the correct index for the ISD was provided. Examine the output and make sure that the field for the index is filled with ones and that field is indeed the ISD. Remember when determining the appropriate index to account for the fact that the original data had sample names in field one (this field should not be counted when determining an appropriate index).
 ```{r}
 head(transformed_data[[1]][,,2])
 ```
@@ -135,9 +137,9 @@ These transformed data can be used in the 'diversity_calc', 'diff_abund', and 'e
 
 ## Literature cited 
 
-Harrison, J. G., Calder, W. J., Shastry, V., & Buerkle, C. A. (2020a). Dirichlet-multinomial modelling outperforms alternatives for analysis of microbiome and other ecological count data. Molecular Ecology Resources, 20(2), 481-497.
+Harrison, J. G., Calder, W. J., Shastry, V., & Buerkle, C. A. (2020a). Dirichlet multinomial modelling outperforms alternatives for analysis of microbiome and other ecological count data. Molecular Ecology Resources, 20(2)
 
-Harrison, J., Calder, W. J., Shuman, B. N., & Buerkle, C. A. (2020b). The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources (Accepted as of Aug. 2020)
+Harrison, J., Calder, W. J., Shuman, B. N., & Buerkle, C. A. (2020b). The quest for absolute abundance: the use of internal standards for DNA based community ecology. Molecular Ecology Resources (Accepted as of Aug. 2020)
 
 Stan Development Team (2018). RStan: the R interface to Stan. R package version 2.18.2.
 
