@@ -21,11 +21,11 @@ Takes the mean value of pi parameters for each feature and separately by treatme
 }
 \examples{
 \donttest{
-com_demo <- matrix(0, nrow = 10, ncol = 10)
+com_demo <- data.frame(matrix(0, nrow = 10, ncol = 10))
 com_demo[1:5,] <- 3
 com_demo[6:10,] <- 7
-names(com_demo) <- rep("name", 10)
+colnames(com_demo) <- rep("name", 10)
 out <- varInf(com_demo,starts = c(1,6), ends=c(5,10))
-extract_point_estimate(modelOut = out, countData = com_demo)
+extract_point_estimate(modelOut = out, countData = com_demo, treatments = 2)
 }
 }

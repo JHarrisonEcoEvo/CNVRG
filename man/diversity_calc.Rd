@@ -37,6 +37,6 @@ com_demo[6:10,] <- 7
 names(com_demo) <- rep("name", 10)
 out <- varInf(com_demo,starts = c(1,6), ends=c(5,10))
 diversity_calc(model_output = out,params = c("pi","p"),
-countData = com_demo, entropy_measure = 'shannon',equivalents = T)
+countData = com_demo, entropy_measure = 'shannon')
 }
 }

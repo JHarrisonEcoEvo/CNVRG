@@ -55,12 +55,11 @@ com_demo[1:5,] <- 3
 com_demo[6:10,] <- 7
 #These are toy data, many more samples, multiple chains, and a longer burn
 #are likely advisable for real data.
-fitstan_HMC <- varHMC(com_demo,starts = c(1,6), 
+fitstan_HMC <- varHMC(com_demo,starts = c(1,6),
 ends=c(5,10),
-chains = 1, 
-burn = 100, 
-samples = 100, 
+chains = 1,
+burn = 100,
+samples = 150,
 thinning_rate = 2)
-summary(fitstan_HMC, pars = "pi", probs =c(0.025, 0.975))$summary
 }
 }
