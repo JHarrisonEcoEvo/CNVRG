@@ -1,12 +1,11 @@
 ---
 title: "CNVRG vignette"
 author: "Joshua Harrison"
-date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+date: "`r Sys.Date()`"
+output: pdf_document
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{CNVRG vignette}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
   \usepackage[utf8]{inputenc}
 ---
 
@@ -54,8 +53,8 @@ modelOut <- varHMC(countData = fungi,
        starts = c(1,39,76,113),
        ends = c(38,75,112,148),
        chains = 2, 
-       burn = 100, 
-       samples = 150, 
+       burn = 500, 
+       samples = 2000, 
        thinning_rate = 2,
        cores = 1,
        params_to_save = c("pi", "p"))
@@ -108,7 +107,8 @@ Often some measure of the information content of data is desirable. This can be 
 
 To calculate diversity entropies use the 'diversity_calc' function:
 ```{r}
-entropies <- diversity_calc(model_output = modelOut, countData = fungi, entropy_measure = 'shannon',equivalents = T)
+entropies <- diversity_calc(model_output = modelOut, countData = fungi,
+                            entropy_measure = 'shannon',equivalents = T)
 ```
 
 We do not provide explicit plotting functions for entropy posteriors as we suspect users will have formatting desires that preclude the use of canned functions. However, a simple way to plot entropy posteriors is via density plots using base R. For example: 
