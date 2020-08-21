@@ -243,7 +243,7 @@ extract_point_estimate <- function(modelOut, countData, treatments){
   
   #Catch ps only if they exist
   
-  if( length(grep("^p\\.", names(modelOut@sim$samples[[1]]))) != 0 ){
+  if( length(grep("^p[\\.[]", names(modelOut@sim$samples[[1]]))) != 0 ){
     #Extract point estimates for ps
     #Note that, for now, we use the same extraction approach regardless of sampling method
     #This could change though.
