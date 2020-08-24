@@ -1,5 +1,8 @@
 # CNVRG
 
+**Beta release
+This is the first release of this software. Please let us know if you find any errors.
+
 An R package to provide a user-friendly wrapper for RStan to implement Dirichlet-multinomial modeling of relative abundance count data. For vignette information see below.
 
 A github repo for this package exists at: https://github.com/JHarrisonEcoEvo/CNVRG
@@ -12,7 +15,7 @@ install.packages("./CNVRG/", repos = NULL, type = "source")
 
 VIGNETTE
 
-Due to encoding issues a vignette may not have been included with this package as downloaded from CRAN. Please view the pdf vignette available at the repo linked above. 
+Please view the pdf vignette available at the repo linked above.
 
 <!-- badges: start -->
 [![Travis build status](https://travis-ci.com/JHarrisonEcoEvo/CNVRG.svg?branch=master)](https://travis-ci.com/JHarrisonEcoEvo/CNVRG)
