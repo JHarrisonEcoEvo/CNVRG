@@ -37,3 +37,5 @@ SystemRequirements: GNU make
 Repository: CRAN
 NeedsCompilation: yes
 Packaged: 2020-08-13 17:02:33 UTC; joshuaharrison
+VignetteBuilder: knitr, rmarkdown
+Suggests: knitr, rmarkdown
