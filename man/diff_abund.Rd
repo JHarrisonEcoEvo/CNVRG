@@ -2,7 +2,7 @@
 % Please edit documentation in R/convrg_func.R
 \name{diff_abund}
 \alias{diff_abund}
-\title{Calculate features with different relative abundances between treatment groups}
+\title{Calculate features with different abundances between treatment groups}
 \usage{
 diff_abund(model_output, countData)
 }

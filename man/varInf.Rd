@@ -30,7 +30,7 @@ varInf(
 A fitted Stan object that includes the samples from the parameters designated.
 }
 \description{
-This function uses the compiled Dirichlet-multinomial model and performs variational inference estimation of posteriors.
+This function uses the compiled Dirichlet multinomial model and performs variational inference estimation of posteriors.
 Testing the performance of variational inference is under development, per our understanding. Please roll over to Stan's website and see if new diagnostics are available.
 If you use this function then credit Stan and Rstan along with this package.Warning: depending upon size of data to be analyzed this function can take a very long time to run.
 }

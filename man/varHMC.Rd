@@ -24,11 +24,11 @@ varHMC(
 
 \item{ends}{A vector defining the indices that correspond to the last sample in each treatment group.}
 
-\item{algorithm}{The algorithm to use when sampling. Either 'NUTS' or 'HMC' or 'Fixed_param'. If unsure, then pick NUTS. This is "No U-turn sampling". The abbreviation is from Stan.}
+\item{algorithm}{The algorithm to use when sampling. Either 'NUTS' or 'HMC' or 'Fixed_param'. If unsure, then pick NUTS. This is "No U turn sampling". The abbreviation is from Stan.}
 
 \item{chains}{The number of chains to run.}
 
-\item{burn}{The warm-up or 'burn-in' time.}
+\item{burn}{The warm up or 'burn in' time.}
 
 \item{samples}{How many samples from the posterior to save.}
 
@@ -42,7 +42,7 @@ varHMC(
 A fitted Stan object that includes the samples from the parameters designated.
 }
 \description{
-This function uses the compiled Dirichlet-multinomial model and performs Hamiltonian Monte Carlo sampling of posteriors.
+This function uses the compiled Dirichlet multinomial model and performs Hamiltonian Monte Carlo sampling of posteriors.
 After sampling it is important to check convergence. Use the summary function and shinystan to do this.
 If you use this function then credit Stan and Rstan along with this package.
 Warning: data must be input in the correct organized format or this function will not provide accurate results. See vignette if you are unsure how to organize data.
