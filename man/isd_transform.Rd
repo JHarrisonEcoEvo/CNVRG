@@ -2,7 +2,8 @@
 % Please edit documentation in R/convrg_func.R
 \name{isd_transform}
 \alias{isd_transform}
-\title{Transform data into estimates of absolute abundances using an ISD}
+\title{@encoding UTF-8
+Transform data into estimates of absolute abundances using an ISD}
 \usage{
 isd_transform(model_output, isd_index, countData)
 }
@@ -26,7 +27,7 @@ If the wrong index is passed in, the output of this function will be incorrect, 
 
 A simple check is to examine the output and make sure that the field that should correspond with the ISD is one (the ISD divided by itself).
 
-Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA based community ecology. Molecular Ecology Resources.
+Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources.
 }
 \examples{
 \donttest{

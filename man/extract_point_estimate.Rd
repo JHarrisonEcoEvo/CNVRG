@@ -2,7 +2,8 @@
 % Please edit documentation in R/convrg_func.R
 \name{extract_point_estimate}
 \alias{extract_point_estimate}
-\title{Extract point estimates of pi parameters}
+\title{@encoding UTF-8
+Extract point estimates of pi parameters}
 \usage{
 extract_point_estimate(modelOut, countData, treatments)
 }

@@ -2,7 +2,8 @@
 % Please edit documentation in R/convrg_func.R
 \name{diversity_calc}
 \alias{diversity_calc}
-\title{Calculate diversity entropies for each replicate}
+\title{@encoding UTF-8
+Calculate diversity entropies for each replicate}
 \usage{
 diversity_calc(
   model_output,

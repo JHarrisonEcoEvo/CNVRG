@@ -2,7 +2,8 @@
 % Please edit documentation in R/convrg_func.R
 \name{varInf}
 \alias{varInf}
-\title{Perform variational inference sampling}
+\title{@encoding UTF-8
+Perform variational inference sampling}
 \usage{
 varInf(
   countData,
