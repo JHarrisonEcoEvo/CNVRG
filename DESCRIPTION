@@ -1,26 +1,30 @@
 Package: CNVRG
-Title: Dirichlet-Multinomial Modeling of Relative Abundance Data
-Version: 0.0.0.9000
+Title: Dirichlet-Multinomial Modelling of Relative Abundance Data
+Version: 0.1
 Authors@R: 
     c(person(given = "Joshua",
            family = "Harrison",
            role = c("aut", "cre"),
-           email = "joshua.grant.harrison@gmail.com"),
+           email = "joshua.grant.harrison@gmail.com",
+           comment = c(ORCID = "0000-0003-2524-0273")),
       person(given = "Vivaswat",
            family = "Shastry",
-           role = "aut"),
+           role = "aut",
+           comment = c(ORCID = "0000-0002-7294-5607")),
       person(given = "W. John",
            family = "Calder",
-           role = "aut"),
+           role = "aut",
+           comment = c(ORCID = "0000-0002-8923-1803")),
       person(given = "C. Alex",
            family = "Buerkle",
-           role = "aut"))
+           role = "aut",
+           comment = c(ORCID = "0000-0003-4222-8858")),
 Author: Joshua Harrison [aut, cre],
   Vivaswat Shastry [aut],
   W. John Calder [aut],
   C. Alex Buerkle [aut]
 Maintainer: Joshua Harrison <joshua.grant.harrison@gmail.com>
-Description: Implements Dirichlet-multinomial modeling of relative abundance data using functionality provided by the Stan software. The purpose of this package is to provide a user-friendly way to interface with Stan that is suitable for those new to R and modeling. For more regarding the modeling mathematics and computational techniques see our publication in Molecular Ecology Resources titled "Dirichlet‐multinomial modelling outperforms alternatives for analysis of ecological count data". Digital object identifier: 10.1111/1755-0998.13128.
+Description: Implements Dirichlet multinomial modelling of relative abundance data using functionality provided by the 'Stan' software. The purpose of this package is to provide a user friendly way to interface with 'Stan' that is suitable for those new to modelling. For more regarding the modelling mathematics and computational techniques we use see our publication in Molecular Ecology Resources titled "Dirichlet multinomial modelling outperforms alternatives for analysis of ecological count data" (Harrison et al. 2020 <doi:10.1111/1755-0998.13128>)
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
@@ -37,5 +41,3 @@ SystemRequirements: GNU make
 Repository: CRAN
 NeedsCompilation: yes
 Packaged: 2020-08-13 17:02:33 UTC; joshuaharrison
-VignetteBuilder: knitr, rmarkdown
-Suggests: knitr, rmarkdown
