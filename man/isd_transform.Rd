@@ -27,7 +27,7 @@ If the wrong index is passed in, the output of this function will be incorrect, 
 
 A simple check is to examine the output and make sure that the field that should correspond with the ISD is one (signifying that the ISD was divided by itself).
 
-Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources. \url{doi:10.1111/1755‐0998.13247}
+Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources.
 }
 \examples{
 com_demo <-matrix(0, nrow = 10, ncol = 10)
