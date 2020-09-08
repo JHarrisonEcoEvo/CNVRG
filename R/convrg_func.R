@@ -1,4 +1,5 @@
-#' @encoding UTF-8
+#'  @encoding UTF-8
+#' 
 #' Calculate features with different abundances between treatment groups
 #'
 #' This function determines which features within the matrix, be they taxa or molecules, differ in relative abundance among treatment groups.
@@ -6,7 +7,7 @@
 #' This function only works for pi parameters.
 #' 
 #' The output of this function gives the proportion of samples that were greater than zero after subtracting two posterior distributions. Therefore, values that are very large or very small denote a high certainty that the distributions subtracted differ. 
-#'
+#' 
 #' @param model_output Fitted 'Stan' object.
 #' @param countData Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.
 #' @return A dataframe with the first field denoting the treatment comparison (e.g., treatment 1 vs. 2) and subsequent fields stating the proportion of samples from the posterior that were greater than zero.
