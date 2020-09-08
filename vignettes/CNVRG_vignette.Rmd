@@ -2,13 +2,12 @@
 title: "CNVRG vignette"
 author: "Joshua Harrison"
 date: "`r Sys.Date()`"
-output: pdf_document, html_vignette
+output: pdf_document
 vignette: >
   %\VignetteIndexEntry{CNVRG vignette}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
 ---
-
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE
@@ -20,24 +19,24 @@ library(CNVRG)
 library(rstan)
 ```
 
-CNVRG is an R package that wraps functionality provided by RStan and Stan in a simple to use interface (Stan Development Team 2018). Credit should be given to the Stan team if CNVRG is used. Additionally, please cite the CNVRG package and associated Molecular Ecology Resources paper (Harrison et al. 2020a). Thanks!
+'CNVRG' wraps functionality provided by 'RStan' and 'Stan' in a simple to use interface (Stan Development Team 2018). Credit should be given to the 'Stan' team if 'CNVRG' is used. Additionally, please cite the 'CNVRG' package and associated Molecular Ecology Resources paper (Harrison et al. 2020a). Thanks!
 
-CNVRG facilitates Dirichlet multinomial modeling of relative abundance data, such as those generated via sequencing of microbiomes. We envision the software being of particular use for microbial and community ecologists. The variational inference algorithm provided by Stan extends the utility of the model to modern datasets with many thousands of parameters to estimate.
+'CNVRG' facilitates Dirichlet multinomial modelling of relative abundance data, such as those generated via sequencing of microbiomes. We envision the software being of particular use for microbial and community ecologists. The variational inference algorithm provided by 'Stan' extends the utility of the model to modern datasets with many thousands of parameters to estimate.
 
-In this vignette, we demonstrate how to use CNVRG on a simple dataset. We urge new users of R to carefully examine the files used. Data must be formatted properly for CNVRG to work!
+In this vignette, we demonstrate how to use 'CNVRG' on a simple dataset. We urge new users to carefully examine the files used. Data must be formatted properly for 'CNVRG' to work!
 
-We also recommend that application of CNVRG to larger data (e.g., a matrix of several thousand by several hundred) be performed remotely as modeling can take some compute time. As a head's up to new users, it is worth subsetting one's data and ensuring code correctness and model completion prior to analyzing a large dataset.
+We also recommend that application of 'CNVRG' to larger data (e.g., a matrix of several thousand by several hundred) be performed remotely as modelling can take some compute time. As a head's up to new users, it is worth subsetting one's data and ensuring code correctness and model completion prior to analyzing a large dataset.
 
 ```{r load myData, include=FALSE}
 load("../data/fungi.rda")
 ```
 
-Data to be processed by CNVRG should look like the following matrix, with a treatment field followed by fields containing count data. Note that count data must be integers and must be read by R as such (not factors or strings). The treatment field must be encoded as a factor or string. Use str() to determine the format of your data. See DataCamp, swirl or other R tutorials if you do not know how to change the encoded format for your data.
+Data to be processed by 'CNVRG' should look like the following matrix, with a treatment field followed by fields containing count data. Note that count data must be integers and must be read by 'R' as such (not factors or strings). The treatment field must be encoded as a factor or string. Use str() to determine the format of your data. See 'DataCamp', 'swirl' or other 'R' tutorials if you do not know how to change the encoded format for your data.
 ```{r}
 fungi[1:3,1:5]
 ```
 
-Before modeling it is important to ensure that the data are organized such that all replicates from a treatment group are grouped together. For instance, all "treatment1" replicates should be followed by all "treatment2" replicates in the matrix, in rowwise fashion. Replicates from different treatment groups should not be interdigitated. This is because the hierarchical nature of the model shares information among replicates within a treatment group. If replicates are jumbled up then information will not be shared properly and model output will be incorrect. 
+Before modelling it is important to ensure that the data are organized such that all replicates from a treatment group are grouped together. For instance, all "treatment1" replicates should be followed by all "treatment2" replicates in the matrix in row wise fashion. Replicates from different treatment groups should not be interdigitated. This is because the hierarchical nature of the model shares information among replicates within a treatment group. If replicates are jumbled up then information will not be shared properly and model output will be incorrect. 
 
 For instance, consider:
 ```{r}
@@ -68,15 +67,15 @@ After running the model it is important to check convergence statistics. One way
 head(summary(modelOut, pars = "pi", probs =c(0.025, 0.975))$summary)
 ```
 
-Rhat scores should be near 1. It is advisable to check other measures of model performance (N eff, Geweke's statistic, trace plots) The shinystan package also provides excellent visualizations of model performance. The package can be called like this: 'shinystan::launch_shinystan(modelOut)'. If you are unfamiliar with convergence diagnostics then please see the Stan documentation.
+Rhat scores should be near 1. It is advisable to check other measures of model performance (number of effective samples, Geweke's statistic, trace plots) The 'shinystan' package also provides excellent visualizations of model performance. The package can be called like this: 'shinystan::launch_shinystan(modelOut)'. If you are unfamiliar with convergence diagnostics then please see the 'Stan' documentation.
 
 At the moment, diagnostic tools are not well developed for variational inference.
 
 ## Using estimates of relative abundances
 
-If model diagnostics seem sufficient then analyses can be performed using relative abundance estimates. Use the 'extract' function from RStan to assign samples for parameters of interest to an object. These samples can then be passed to downstream analyses.
+If model diagnostics seem sufficient then analyses can be performed using relative abundance estimates. Use the 'extract' function from 'RStan' to assign samples for parameters of interest to an object. These samples can then be passed to downstream analyses.
 
-While we advocate using samples describing posterior distributions for parameters of interest whenever possible, we acknowledge that sometimes it is convenient to obtain point estimates for those parameters. To do so for pi parameters we can use the CNVRG function 'extract_point_estimate' like so:
+While we advocate using samples describing posterior distributions for parameters of interest whenever possible, we acknowledge that sometimes it is convenient to obtain point estimates for those parameters. To do so for pi parameters we can use the 'CNVRG' function 'extract_point_estimate' like so:
 
 ```{r}
 point_est <- extract_point_estimate(modelOut = modelOut, countData = fungi, treatments = 2)
@@ -84,26 +83,26 @@ point_est <- extract_point_estimate(modelOut = modelOut, countData = fungi, trea
 
 ## Differential relative abundance testing
 
-One common analysis is to compare relative abundances of features between treatment groups. This is commonly referred to as 'differential abundance testing' in the microbial ecology and functional genomics literatures. CNVRG provides functions to ease this analysis. Simply pass in the extracted pi parameters (the function does not work for other parameters) and specify the count data used. The count data must follow the exact format as those modeled and be in the same order.
+One common analysis is to compare relative abundances of features between treatment groups. This is commonly referred to as 'differential abundance testing' in the microbial ecology and functional genomics literatures. 'CNVRG' provides functions to ease this analysis. Simply pass in the extracted pi parameters (the function does not work for other parameters) and specify the count data used. The count data must follow the exact format as those modelled and be in the same order.
 ```{r}
 diff_abund_test <- diff_abund(model_output = modelOut, countData = fungi)
 ```
 
-This function subtracts the posterior distribution of the pi paramater for each feature in one treatment group from the pi parameter distribution in other treatment groups. The function outputs a matrix of proportions that describes the proportion of the distribution of differences that are greater than zero, for each comparison. In this example, the comparison between treatment 1 and treatment 3 provided the following results.
+This function subtracts the posterior distribution of the pi paramater for each feature in one treatment group from the pi parameter distribution in other treatment groups. The function outputs a matrix of proportions that describes the proportion of the distribution of differences that is greater than zero, for each comparison. In this example, the comparison between treatment 1 and treatment 3 provided the following results.
 
 ```{r}
 diff_abund_test[3,]
 ```
 
-This means that for Otu 4 100% of the samples obtained after subtracting the pi distributions for that Otu from treatment 1 and treatment 3 were greater than zero. This means that the there is high certainty that the pi value for Otu 4 in treatment 1 was greater than in treatment 3. Stated another way, this means that the relative abundance of Otu 4 was greater in treatment 1 than in treatment 3.
+This means that for Otu 4 nearly 100% of the samples obtained after subtracting the pi distributions for that Otu from treatment 1 and treatment 3 were greater than zero. This means that the there is high certainty that the pi value for Otu 4 in treatment 1 was greater than in treatment 3. Stated another way, this means that the relative abundance of Otu 4 was greater in treatment 1 than in treatment 3.
 
-However, only 28% of samples for the distribution of differences for Otu 58 were above zero. So we have much less certainty that this Otu differed in relative abundance between treatment group 1 and treatment group 3.
+However, only approximately a third of samples for the distribution of differences for Otu 58 were above zero. So we have much less certainty that this Otu differed in relative abundance between treatment group 1 and treatment group 3.
 
 Because the 'diff_abund' function provides insight into the proportion of samples ABOVE zero, values that are very large and very small (e.g., >0.95 or <0.05) denote a high certainty of an effect of treatment group.
 
 ## Diversity calculation
 
-Often some measure of the information content of data is desirable. This can be calculated using diversity entropies, such as the Shannon index. Ecologists use these metrics all the time, though they can be useful in many other fields as well. CNVRG allows propagation of uncertainty in relative abundance estimates through diversity entropy calculations.
+Often some measure of the information content of data is desirable. This can be calculated using diversity entropies, such as the Shannon index. Ecologists use these metrics all the time, though they can be useful in many other fields as well. 'CNVRG' allows propagation of uncertainty in relative abundance estimates through diversity entropy calculations.
 
 To calculate diversity entropies use the 'diversity_calc' function:
 ```{r}
@@ -111,7 +110,7 @@ entropies <- diversity_calc(model_output = modelOut, countData = fungi,
                             entropy_measure = 'shannon',equivalents = T)
 ```
 
-We do not provide explicit plotting functions for entropy posteriors as we suspect users will have formatting desires that preclude the use of canned functions. However, a simple way to plot entropy posteriors is via density plots using base R. For example: 
+We do not provide explicit plotting functions for entropy posteriors as we suspect users will have formatting desires that preclude the use of canned functions. However, a simple way to plot entropy posteriors is via density plots using base 'R'. For example: 
 ```{r}
 plot(density(entropies[[1]][[1]]),
      xlab = "Entropy",
@@ -123,17 +122,14 @@ plot(density(entropies[[1]][[1]]),
 
 If an internal standard (ISD) has been used, then it is a simple matter to transform samples of posterior distributions so that relative abundance estimates are provided as ratios with the internal standard's relative abundance as the denominator. This transforms the data so that each field is represented in relation to the internal standard. Since the standard should represent the same starting absolute abundance, this transformation accounts for the problems of compositionality inherent to relative abundance data, to some extent at least. There are many situations where the standard may fail and we direct users to Harrison et al. 2020b for a description of these situations. Still, we suggest that an internal standard provides important benefits for many studies.
 
-We have provided a simple function in CNVRG called 'isd_transform' that facilitates the aforementioned transformation. Users must specify which field corresponds to the ISD. For the sake of example, let's say that the second index corresponds with the ISD.
+We have provided a simple function in 'CNVRG' called 'isd_transform' that facilitates the aforementioned transformation. Users must specify which field corresponds to the ISD. For the sake of example, let's say that the second index corresponds with the ISD.
 
 ```{r}
 transformed_data <- isd_transform(model_output = modelOut, countData = fungi, isd_index = 2)
 ```
 
 It is worth checking that the correct index for the ISD was provided. Examine the output and make sure that the field for the index is filled with ones and that field is indeed the ISD. Remember when determining the appropriate index to account for the fact that the original data had sample names in field one (this field should not be counted when determining an appropriate index).
-```{r}
-head(transformed_data[[1]][,,2])
-```
-These transformed data can be used in the 'diversity_calc', 'diff_abund', and 'extract_point_estimates' functions.
+Transformed data can be used in the 'diversity_calc', 'diff_abund', and 'extract_point_estimates' functions.
 
 ## Literature cited 
 
