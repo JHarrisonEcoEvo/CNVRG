@@ -21,29 +21,28 @@ varInf(
 
 \item{ends}{A vector defining the indices that correspond to the last sample in each treatment group.}
 
-\item{algorithm}{The algorithm to use when performing variational inference. Either 'meanfield' or 'fullrank'.}
+\item{algorithm}{The algorithm to use when performing variational inference. Either 'meanfield' or 'fullrank'. The former is the default.}
 
 \item{output_samples}{The number of samples from the approximated posterior to save.}
 
 \item{params_to_save}{The parameters from which to save samples. Can be 'p', 'pi', 'theta'.}
 }
 \value{
-A fitted Stan object that includes the samples from the parameters designated.
+A fitted 'Stan' object that includes the samples from the parameters designated.
 }
 \description{
-This function uses the compiled Dirichlet multinomial model and performs variational inference estimation of posteriors.
-Testing the performance of variational inference is under development, per our understanding. Please roll over to Stan's website and see if new diagnostics are available.
-If you use this function then credit Stan and Rstan along with this package.Warning: depending upon size of data to be analyzed this function can take a very long time to run.
+This function uses a compiled Dirichlet multinomial model and performs variational inference estimation of posteriors using 'Stan'.
+Evaluating the performance of variational inference is currently under development per our understanding. Please roll over to the 'Stan' website and see if new diagnostics are available.
+If you use this function then credit 'Stan' and 'RStan' along with this package.
 }
 \details{
 Warning: data must be input in the correct organized format or this function will not provide accurate results. See vignette if you are unsure how to organize data.
 Warning: depending upon size of data to be analyzed this function can take a very long time to run.
 }
 \examples{
-\donttest{
-com_demo <- matrix(0, nrow = 10, ncol = 10)
-com_demo[1:5,] <- 3
-com_demo[6:10,] <- 7
+com_demo <-matrix(0, nrow = 10, ncol = 10)
+com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
+com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
+names(com_demo) <- rep("name", 10)
 varInf(com_demo,starts = c(1,6), ends=c(5,10))
-}
 }

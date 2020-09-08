@@ -25,7 +25,7 @@ varHMC(
 
 \item{ends}{A vector defining the indices that correspond to the last sample in each treatment group.}
 
-\item{algorithm}{The algorithm to use when sampling. Either 'NUTS' or 'HMC' or 'Fixed_param'. If unsure, then pick NUTS. This is "No U-turn sampling". The abbreviation is from Stan.}
+\item{algorithm}{The algorithm to use when sampling. Either 'NUTS' or 'HMC' or 'Fixed_param'. If unsure, then pick NUTS. This is "No U-turn sampling". The abbreviation is from 'Stan'.}
 
 \item{chains}{The number of chains to run.}
 
@@ -40,20 +40,20 @@ varHMC(
 \item{params_to_save}{The parameters from which to save samples. Can be 'p', 'pi', 'theta'.}
 }
 \value{
-A fitted Stan object that includes the samples from the parameters designated.
+A fitted 'Stan' object that includes the samples from the parameters designated.
 }
 \description{
-This function uses the compiled Dirichlet-multinomial model and performs Hamiltonian Monte Carlo sampling of posteriors.
+This function uses a compiled Dirichlet-multinomial model and performs Hamiltonian Monte Carlo sampling of posteriors using 'Stan'.
 After sampling it is important to check convergence. Use the summary function and shinystan to do this.
-If you use this function then credit Stan and Rstan along with this package.
+If you use this function then credit 'Stan' and 'RStan' along with this package.
 Warning: data must be input in the correct organized format or this function will not provide accurate results. See vignette if you are unsure how to organize data.
 Warning: depending upon size of data to be analyzed this function can take a very long time to run.
 }
 \examples{
-\donttest{
-com_demo <- matrix(0, nrow = 10, ncol = 10)
-com_demo[1:5,] <- 3
-com_demo[6:10,] <- 7
+com_demo <-matrix(0, nrow = 10, ncol = 10)
+com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
+com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
+names(com_demo) <- rep("name", 10)
 #These are toy data, many more samples, multiple chains, and a longer burn
 #are likely advisable for real data.
 fitstan_HMC <- varHMC(com_demo,starts = c(1,6),
@@ -62,5 +62,4 @@ chains = 1,
 burn = 100,
 samples = 150,
 thinning_rate = 2)
-}
 }

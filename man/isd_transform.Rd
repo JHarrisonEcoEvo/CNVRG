@@ -8,11 +8,11 @@ Transform data into estimates of absolute abundances using an ISD}
 isd_transform(model_output, isd_index, countData)
 }
 \arguments{
-\item{model_output}{A fitted Stan object.}
+\item{model_output}{A fitted 'Stan' object.}
 
 \item{isd_index}{The index for the field with information for the internal standard.}
 
-\item{countData}{The count data modeled. Must be in exactly the same format as those modeled.}
+\item{countData}{The count data modelled. Must be in exactly the same format as those modelled.}
 }
 \value{
 A dataframe specifying point estimates for each feature in each treatment group.
@@ -22,19 +22,18 @@ If an internal standard (ISD) has been added to samples such that the counts for
 This function performs this division while preserving uncertainty in relative abundance estimates of both the ISD and the other features present.
 }
 \details{
-An index for the ISD must be provided. This should be the field index that corresponds with the ISD. Remember that the index should mirror what has been modeled in that it there is NOT an initial field that contains the sample name.
+An index for the ISD must be provided. This should be the field index that corresponds with the ISD. Remember that the index should mirror what has been modelled in that it there is NOT an initial field that contains the sample name.
 If the wrong index is passed in, the output of this function will be incorrect, but there will not be a fatal error or warning.
 
-A simple check is to examine the output and make sure that the field that should correspond with the ISD is one (the ISD divided by itself).
+A simple check is to examine the output and make sure that the field that should correspond with the ISD is one (signifying that the ISD was divided by itself).
 
-Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources.
+Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources. \url{doi:10.1111/1755‐0998.13247}
 }
 \examples{
-\donttest{
-com_demo <- matrix(0, nrow = 10, ncol = 10)
-com_demo[1:5,] <- 3
-com_demo[6:10,] <- 7
+com_demo <-matrix(0, nrow = 10, ncol = 10)
+com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
+com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
+names(com_demo) <- rep("name", 10)
 out <- varInf(com_demo,starts = c(1,6), ends=c(5,10))
 transformed_data <- isd_transform(model_output = out, countData = com_demo, isd_index = 2)
-}
 }

@@ -14,9 +14,9 @@ diversity_calc(
 )
 }
 \arguments{
-\item{model_output}{Object from fitted Stan model that has samples describing posteriors.}
+\item{model_output}{Object from fitted 'Stan' model that has samples describing posteriors of focal parameters.}
 
-\item{countData}{Dataframe of count data that was modeled. Should be exactly the same as those data modeled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.}
+\item{countData}{Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.}
 
 \item{params}{Parameter for which to calculate diversity, can be 'p' or 'pi' or both (e.g., c("pi","p"))}
 
@@ -31,13 +31,11 @@ A list that has samples from posterior distributions of entropy metrics
 Calculate Shannon's or Simpson's entropies for each replicate while propagating uncertainty in relative abundance estimates through calculations.
 }
 \examples{
-\donttest{
-com_demo <- matrix(0, nrow = 10, ncol = 10)
-com_demo[1:5,] <- 3
-com_demo[6:10,] <- 7
+com_demo <-matrix(0, nrow = 10, ncol = 10)
+com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
+com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
 names(com_demo) <- rep("name", 10)
 out <- varInf(com_demo,starts = c(1,6), ends=c(5,10))
 diversity_calc(model_output = out,params = c("pi","p"),
 countData = com_demo, entropy_measure = 'shannon')
-}
 }
