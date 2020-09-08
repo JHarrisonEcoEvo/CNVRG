@@ -300,7 +300,7 @@ extract_point_estimate <- function(modelOut, countData, treatments){
 #' 
 #' A simple check is to examine the output and make sure that the field that should correspond with the ISD is one (signifying that the ISD was divided by itself).
 #' 
-#' Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources. <doi:10.1111/1755‐0998.13247>
+#' Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources.
 #' @param model_output A fitted 'Stan' object.
 #' @param countData The count data modelled. Must be in exactly the same format as those modelled.
 #' @param isd_index The index for the field with information for the internal standard.
