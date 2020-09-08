@@ -1,4 +1,5 @@
-#' Calculate features with different relative abundances between treatment groups
+#' @encoding UTF-8
+#' Calculate features with different abundances between treatment groups
 #'
 #' This function determines which features within the matrix, be they taxa or molecules, differ in relative abundance among treatment groups.
 #' Pass in a model object, with samples for pi parameters, and the number of treatment groups.
@@ -6,17 +7,15 @@
 #' 
 #' The output of this function gives the proportion of samples that were greater than zero after subtracting two posterior distributions. Therefore, values that are very large or very small denote a high certainty that the distributions subtracted differ. 
 #'
-#' @param model_output Fitted Stan object.
-#' @param countData Dataframe of count data that was modeled. Should be exactly the same as those data modeled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.
-#' @return A dataframe with the first field denoting the treatment comparison (e.g., treatment 1 vs. 2) and subsequent fields telling the proportion of samples from the posterior that were greater than zero.
-#' @examples 
-#' \donttest{
-#' com_demo <- matrix(0, nrow = 10, ncol = 10)
-#' com_demo[1:5,] <- 3
-#' com_demo[6:10,] <- 7
+#' @param model_output Fitted 'Stan' object.
+#' @param countData Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.
+#' @return A dataframe with the first field denoting the treatment comparison (e.g., treatment 1 vs. 2) and subsequent fields stating the proportion of samples from the posterior that were greater than zero.
+#' @examples
+#' com_demo <-matrix(0, nrow = 10, ncol = 10)
+#' com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
+#' com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
 #' out <- varInf(com_demo,starts = c(1,6), ends=c(5,10))
 #' diff_abund_test <- diff_abund(model_output = out, countData = com_demo)
-#' }
 #' @export
 diff_abund <- function(model_output, countData){
   if(model_output@stan_args[[1]]$method == "sampling"){
@@ -104,26 +103,25 @@ diff_abund <- function(model_output, countData){
   }
 }
 
+#'  @encoding UTF-8
 #' Calculate diversity entropies for each replicate
 #'
 #' Calculate Shannon's or Simpson's entropies for each replicate while propagating uncertainty in relative abundance estimates through calculations.
 #'
-#' @param model_output Object from fitted Stan model that has samples describing posteriors.
-#' @param countData Dataframe of count data that was modeled. Should be exactly the same as those data modeled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.
+#' @param model_output Object from fitted 'Stan' model that has samples describing posteriors of focal parameters.
+#' @param countData Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.
 #' @param params Parameter for which to calculate diversity, can be 'p' or 'pi' or both (e.g., c("pi","p"))
 #' @param entropy_measure Diversity entropy to use, can be one of 'shannon' or 'simpson'
 #' @param equivalents Convert entropies into number equivalents. Defaults to true. See Jost (2006), "Entropy and diversity"
 #' @return A list that has samples from posterior distributions of entropy metrics
-#' @examples 
-#' \donttest{
-#' com_demo <- matrix(0, nrow = 10, ncol = 10)
-#' com_demo[1:5,] <- 3
-#' com_demo[6:10,] <- 7
+#' @examples
+#' com_demo <-matrix(0, nrow = 10, ncol = 10)
+#' com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
+#' com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
 #' names(com_demo) <- rep("name", 10)
 #' out <- varInf(com_demo,starts = c(1,6), ends=c(5,10))
 #' diversity_calc(model_output = out,params = c("pi","p"),
 #' countData = com_demo, entropy_measure = 'shannon')
-#' }
 #' @export
 diversity_calc <- function(model_output, countData, params = "pi", entropy_measure = "shannon", equivalents = T){
   if(any(params %in% c("pi","p")) == F){
@@ -200,22 +198,20 @@ diversity_calc <- function(model_output, countData, params = "pi", entropy_measu
   }
 }
 
+#'  @encoding UTF-8
 #' Extract point estimates of pi parameters
 #'
 #' Takes the mean value of pi parameters for each feature and separately by treatment group.
 #' @param modelOut Fitted Stan object
-#' @param countData The count data modeled. Must be in exactly the same format.
-#' @param treatments An integer describing how many treatment groups were modeled.
+#' @param countData The count data modelled. Must be in exactly the same format.
+#' @param treatments An integer describing how many treatment groups were modelled.
 #' @return A dataframe specifying point estimates for each feature in each treatment group.
 #' @examples
-#' \donttest{
-#' com_demo <- data.frame(matrix(0, nrow = 10, ncol = 10))
-#' com_demo[1:5,] <- 3
-#' com_demo[6:10,] <- 7
-#' colnames(com_demo) <- rep("name", 10)
+#' com_demo <-matrix(0, nrow = 10, ncol = 10)
+#' com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
+#' com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
 #' out <- varInf(com_demo,starts = c(1,6), ends=c(5,10))
 #' extract_point_estimate(modelOut = out, countData = com_demo, treatments = 2)
-#' }
 #' @export
 extract_point_estimate <- function(modelOut, countData, treatments){
   
@@ -224,7 +220,6 @@ extract_point_estimate <- function(modelOut, countData, treatments){
   for (i in 1:treatments) {
     treats[i] <- paste("treatment", i, sep = "_")
   }
-  
 
   #Extract point estimates for pis
   #Use different methods to obtain estimates depending upon posterior estimation method.
@@ -293,29 +288,29 @@ extract_point_estimate <- function(modelOut, countData, treatments){
   }
 }
 
+#'  @encoding UTF-8
 #' Transform data into estimates of absolute abundances using an ISD
 #'
 #' If an internal standard (ISD) has been added to samples such that the counts for that standard are representative of the same absolute abundance, then the ISD can be used to transform relative abundance data into estimates of absolute abundances (Harrison et al. 2020). 
 #' This function performs this division while preserving uncertainty in relative abundance estimates of both the ISD and the other features present.
 #' 
-#' An index for the ISD must be provided. This should be the field index that corresponds with the ISD. Remember that the index should mirror what has been modeled in that it there is NOT an initial field that contains the sample name.
+#' An index for the ISD must be provided. This should be the field index that corresponds with the ISD. Remember that the index should mirror what has been modelled in that it there is NOT an initial field that contains the sample name.
 #' If the wrong index is passed in, the output of this function will be incorrect, but there will not be a fatal error or warning. 
 #' 
-#' A simple check is to examine the output and make sure that the field that should correspond with the ISD is one (the ISD divided by itself).
+#' A simple check is to examine the output and make sure that the field that should correspond with the ISD is one (signifying that the ISD was divided by itself).
 #' 
-#' Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources.
-#' @param model_output A fitted Stan object.
-#' @param countData The count data modeled. Must be in exactly the same format as those modeled.
+#' Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources. <doi:10.1111/1755‐0998.13247>
+#' @param model_output A fitted 'Stan' object.
+#' @param countData The count data modelled. Must be in exactly the same format as those modelled.
 #' @param isd_index The index for the field with information for the internal standard.
 #' @return A dataframe specifying point estimates for each feature in each treatment group.
 #' @examples
-#' \donttest{
-#' com_demo <- matrix(0, nrow = 10, ncol = 10)
-#' com_demo[1:5,] <- 3
-#' com_demo[6:10,] <- 7
+#' com_demo <-matrix(0, nrow = 10, ncol = 10)
+#' com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
+#' com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
+#' names(com_demo) <- rep("name", 10)
 #' out <- varInf(com_demo,starts = c(1,6), ends=c(5,10))
 #' transformed_data <- isd_transform(model_output = out, countData = com_demo, isd_index = 2)
-#' }
 #' @export
 isd_transform <- function(model_output, isd_index, countData){
   if(exists("isd_index") == F){
@@ -357,30 +352,30 @@ isd_transform <- function(model_output, isd_index, countData){
   }
 }
 
-
+#'  @encoding UTF-8
 #' Perform Hamiltonian Monte Carlo sampling
 #'
-#' This function uses the compiled Dirichlet-multinomial model and performs Hamiltonian Monte Carlo sampling of posteriors.
+#' This function uses a compiled Dirichlet-multinomial model and performs Hamiltonian Monte Carlo sampling of posteriors using 'Stan'.
 #' After sampling it is important to check convergence. Use the summary function and shinystan to do this.
-#' If you use this function then credit Stan and Rstan along with this package. 
+#' If you use this function then credit 'Stan' and 'RStan' along with this package. 
 #' Warning: data must be input in the correct organized format or this function will not provide accurate results. See vignette if you are unsure how to organize data.
 #' Warning: depending upon size of data to be analyzed this function can take a very long time to run.
 #' @param countData A matrix or data frame of counts, must only include numeric data. Data should be arranged so that the first n rows correspond to one treatment group and the next n rows correspond with the next treatment group, and so on. The row indices for the first and last sample in these groups are fed into this function via 'starts' and 'ends'.
 #' @param starts A vector defining the indices that correspond to the first sample in each treatment group.
 #' @param ends A vector defining the indices that correspond to the last sample in each treatment group.
-#' @param algorithm The algorithm to use when sampling. Either 'NUTS' or 'HMC' or 'Fixed_param'. If unsure, then pick NUTS. This is "No U-turn sampling". The abbreviation is from Stan.
+#' @param algorithm The algorithm to use when sampling. Either 'NUTS' or 'HMC' or 'Fixed_param'. If unsure, then pick NUTS. This is "No U-turn sampling". The abbreviation is from 'Stan'.
 #' @param chains The number of chains to run.
 #' @param burn The warm-up or 'burn-in' time.
 #' @param samples How many samples from the posterior to save.
 #' @param thinning_rate Thinning rate to use during sampling.
 #' @param cores The number of cores to use.
 #' @param params_to_save The parameters from which to save samples. Can be 'p', 'pi', 'theta'.
-#' @return A fitted Stan object that includes the samples from the parameters designated.
+#' @return A fitted 'Stan' object that includes the samples from the parameters designated.
 #' @examples
-#' \donttest{
-#' com_demo <- matrix(0, nrow = 10, ncol = 10)
-#' com_demo[1:5,] <- 3
-#' com_demo[6:10,] <- 7
+#' com_demo <-matrix(0, nrow = 10, ncol = 10)
+#' com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
+#' com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
+#' names(com_demo) <- rep("name", 10)
 #' #These are toy data, many more samples, multiple chains, and a longer burn
 #' #are likely advisable for real data.
 #' fitstan_HMC <- varHMC(com_demo,starts = c(1,6),
@@ -389,7 +384,6 @@ isd_transform <- function(model_output, isd_index, countData){
 #' burn = 100,
 #' samples = 150,
 #' thinning_rate = 2)
-#' }
 #' @export
 varHMC <- function(countData,
                    starts,
@@ -404,7 +398,7 @@ varHMC <- function(countData,
 ){
   #Statements, warnings, and errors
   if(dim(countData)[2] > 5000 & dim(countData)[1] > 100){
-    print("You have a lot of data. Beware that modeling could be slow and you may want to run this on a remote computer.")
+    print("You have a lot of data. Beware that modelling could be slow and you may want to run this on a remote computer.")
   }
   if(any(c("NUTS", "HMC", "Fixed_param") %in% algorithm) == F){
     stop("Algorithm must be one of 'NUTS', 'HMC', 'Fixed_param'. Be like a squirrel.")
@@ -444,28 +438,28 @@ varHMC <- function(countData,
   return(fitstan_HMC)
 }
 
+#'  @encoding UTF-8
 #' Perform variational inference sampling
 #'
-#' This function uses the compiled Dirichlet-multinomial model and performs variational inference estimation of posteriors.
-#' Testing the performance of variational inference is under development, per our understanding. Please roll over to Stan's website and see if new diagnostics are available.
-#' If you use this function then credit Stan and Rstan along with this package.Warning: depending upon size of data to be analyzed this function can take a very long time to run.
+#' This function uses a compiled Dirichlet multinomial model and performs variational inference estimation of posteriors using 'Stan'.
+#' Evaluating the performance of variational inference is currently under development per our understanding. Please roll over to the 'Stan' website and see if new diagnostics are available.
+#' If you use this function then credit 'Stan' and 'RStan' along with this package.
 #'
 #' Warning: data must be input in the correct organized format or this function will not provide accurate results. See vignette if you are unsure how to organize data.
 #' Warning: depending upon size of data to be analyzed this function can take a very long time to run.
 #' @param countData A matrix or data frame of counts, must only include numeric data. Data should be arranged so that the first n rows correspond to one treatment group and the next n rows correspond with the next treatment group, and so on. The row indices for the first and last sample in these groups are fed into this function via 'starts' and 'ends'.
 #' @param starts A vector defining the indices that correspond to the first sample in each treatment group.
 #' @param ends A vector defining the indices that correspond to the last sample in each treatment group.
-#' @param algorithm The algorithm to use when performing variational inference. Either 'meanfield' or 'fullrank'.
+#' @param algorithm The algorithm to use when performing variational inference. Either 'meanfield' or 'fullrank'. The former is the default.
 #' @param output_samples The number of samples from the approximated posterior to save.
 #' @param params_to_save The parameters from which to save samples. Can be 'p', 'pi', 'theta'.
-#' @return A fitted Stan object that includes the samples from the parameters designated.
+#' @return A fitted 'Stan' object that includes the samples from the parameters designated.
 #' @examples
-#' \donttest{
-#' com_demo <- matrix(0, nrow = 10, ncol = 10)
-#' com_demo[1:5,] <- 3
-#' com_demo[6:10,] <- 7
+#' com_demo <-matrix(0, nrow = 10, ncol = 10)
+#' com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
+#' com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
+#' names(com_demo) <- rep("name", 10)
 #' varInf(com_demo,starts = c(1,6), ends=c(5,10))
-#' }
 #' @export
 varInf <- function(countData,
                    starts,
@@ -476,7 +470,7 @@ varInf <- function(countData,
 ){
   #Statements, warnings, and errors
   if(dim(countData)[2] > 5000 & dim(countData)[1] > 100){
-    print("You have a lot of data. Beware that modeling could be slow and you may want to run this on a remote computer.")
+    print("You have a lot of data. Beware that modelling could be slow and you may want to run this on a remote computer.")
   }
   if(algorithm %in% c("meanfield", "fullrank") == F){
     stop("Algorithm must be one of 'meanfield' or 'fullrank'.")
