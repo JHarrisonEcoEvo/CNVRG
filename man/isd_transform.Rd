@@ -2,8 +2,7 @@
 % Please edit documentation in R/convrg_func.R
 \name{isd_transform}
 \alias{isd_transform}
-\title{@encoding UTF-8
-Transform data into estimates of absolute abundances using an ISD}
+\title{Transform data into estimates of absolute abundances using an ISD}
 \usage{
 isd_transform(model_output, isd_index, countData)
 }
@@ -12,7 +11,7 @@ isd_transform(model_output, isd_index, countData)
 
 \item{isd_index}{The index for the field with information for the internal standard.}
 
-\item{countData}{The count data modelled. Must be in exactly the same format as those modelled.}
+\item{countData}{The count data modelled.}
 }
 \value{
 A dataframe specifying point estimates for each feature in each treatment group.

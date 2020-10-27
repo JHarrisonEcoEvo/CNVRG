@@ -2,15 +2,14 @@
 % Please edit documentation in R/convrg_func.R
 \name{extract_point_estimate}
 \alias{extract_point_estimate}
-\title{@encoding UTF-8
-Extract point estimates of pi parameters}
+\title{Extract point estimates of pi parameters}
 \usage{
 extract_point_estimate(modelOut, countData, treatments)
 }
 \arguments{
 \item{modelOut}{Fitted Stan object}
 
-\item{countData}{The count data modelled. Must be in exactly the same format.}
+\item{countData}{The count data modelled.}
 
 \item{treatments}{An integer describing how many treatment groups were modelled.}
 }

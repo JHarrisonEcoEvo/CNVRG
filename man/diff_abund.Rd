@@ -2,7 +2,7 @@
 % Please edit documentation in R/convrg_func.R
 \name{diff_abund}
 \alias{diff_abund}
-\title{@encoding UTF-8}
+\title{Calculate features with different abundances between treatment groups}
 \usage{
 diff_abund(model_output, countData)
 }
@@ -15,13 +15,11 @@ diff_abund(model_output, countData)
 A dataframe with the first field denoting the treatment comparison (e.g., treatment 1 vs. 2) and subsequent fields stating the proportion of samples from the posterior that were greater than zero.
 }
 \description{
-Calculate features with different abundances between treatment groups
-}
-\details{
 This function determines which features within the matrix, be they taxa or molecules, differ in relative abundance among treatment groups.
 Pass in a model object, with samples for pi parameters, and the number of treatment groups.
 This function only works for pi parameters.
-
+}
+\details{
 The output of this function gives the proportion of samples that were greater than zero after subtracting two posterior distributions. Therefore, values that are very large or very small denote a high certainty that the distributions subtracted differ.
 }
 \examples{

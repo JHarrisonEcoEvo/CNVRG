@@ -2,8 +2,7 @@
 % Please edit documentation in R/convrg_func.R
 \name{varInf}
 \alias{varInf}
-\title{@encoding UTF-8
-Perform variational inference sampling}
+\title{Perform variational inference sampling}
 \usage{
 varInf(
   countData,
@@ -15,7 +14,7 @@ varInf(
 )
 }
 \arguments{
-\item{countData}{A matrix or data frame of counts, must only include numeric data. Data should be arranged so that the first n rows correspond to one treatment group and the next n rows correspond with the next treatment group, and so on. The row indices for the first and last sample in these groups are fed into this function via 'starts' and 'ends'.}
+\item{countData}{A matrix or data frame of counts.The first field should be sample names and the subsequent fields should be integer data. Data should be arranged so that the first n rows correspond to one treatment group and the next n rows correspond with the next treatment group, and so on. The row indices for the first and last sample in these groups are fed into this function via 'starts' and 'ends'.}
 
 \item{starts}{A vector defining the indices that correspond to the first sample in each treatment group.}
 
