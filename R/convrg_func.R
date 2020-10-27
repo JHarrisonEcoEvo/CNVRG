@@ -1,5 +1,3 @@
-#'  @encoding UTF-8
-#' 
 #' Calculate features with different abundances between treatment groups
 #'
 #' This function determines which features within the matrix, be they taxa or molecules, differ in relative abundance among treatment groups.
@@ -104,7 +102,6 @@ diff_abund <- function(model_output, countData){
   }
 }
 
-#'  @encoding UTF-8
 #' Calculate diversity entropies for each replicate
 #'
 #' Calculate Shannon's or Simpson's entropies for each replicate while propagating uncertainty in relative abundance estimates through calculations.
@@ -199,12 +196,11 @@ diversity_calc <- function(model_output, countData, params = "pi", entropy_measu
   }
 }
 
-#'  @encoding UTF-8
 #' Extract point estimates of pi parameters
 #'
 #' Takes the mean value of pi parameters for each feature and separately by treatment group.
 #' @param modelOut Fitted Stan object
-#' @param countData The count data modelled. Must be in exactly the same format.
+#' @param countData The count data modelled.
 #' @param treatments An integer describing how many treatment groups were modelled.
 #' @return A dataframe specifying point estimates for each feature in each treatment group.
 #' @examples
@@ -289,7 +285,6 @@ extract_point_estimate <- function(modelOut, countData, treatments){
   }
 }
 
-#'  @encoding UTF-8
 #' Transform data into estimates of absolute abundances using an ISD
 #'
 #' If an internal standard (ISD) has been added to samples such that the counts for that standard are representative of the same absolute abundance, then the ISD can be used to transform relative abundance data into estimates of absolute abundances (Harrison et al. 2020). 
@@ -302,7 +297,7 @@ extract_point_estimate <- function(modelOut, countData, treatments){
 #' 
 #' Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources.
 #' @param model_output A fitted 'Stan' object.
-#' @param countData The count data modelled. Must be in exactly the same format as those modelled.
+#' @param countData The count data modelled.
 #' @param isd_index The index for the field with information for the internal standard.
 #' @return A dataframe specifying point estimates for each feature in each treatment group.
 #' @examples
@@ -353,7 +348,6 @@ isd_transform <- function(model_output, isd_index, countData){
   }
 }
 
-#'  @encoding UTF-8
 #' Perform Hamiltonian Monte Carlo sampling
 #'
 #' This function uses a compiled Dirichlet-multinomial model and performs Hamiltonian Monte Carlo sampling of posteriors using 'Stan'.
@@ -361,7 +355,7 @@ isd_transform <- function(model_output, isd_index, countData){
 #' If you use this function then credit 'Stan' and 'RStan' along with this package. 
 #' Warning: data must be input in the correct organized format or this function will not provide accurate results. See vignette if you are unsure how to organize data.
 #' Warning: depending upon size of data to be analyzed this function can take a very long time to run.
-#' @param countData A matrix or data frame of counts, must only include numeric data. Data should be arranged so that the first n rows correspond to one treatment group and the next n rows correspond with the next treatment group, and so on. The row indices for the first and last sample in these groups are fed into this function via 'starts' and 'ends'.
+#' @param countData A matrix or data frame of counts.The first field should be sample names and the subsequent fields should be integer data. Data should be arranged so that the first n rows correspond to one treatment group and the next n rows correspond with the next treatment group, and so on. The row indices for the first and last sample in these groups are fed into this function via 'starts' and 'ends'.
 #' @param starts A vector defining the indices that correspond to the first sample in each treatment group.
 #' @param ends A vector defining the indices that correspond to the last sample in each treatment group.
 #' @param algorithm The algorithm to use when sampling. Either 'NUTS' or 'HMC' or 'Fixed_param'. If unsure, then pick NUTS. This is "No U-turn sampling". The abbreviation is from 'Stan'.
@@ -439,7 +433,6 @@ varHMC <- function(countData,
   return(fitstan_HMC)
 }
 
-#'  @encoding UTF-8
 #' Perform variational inference sampling
 #'
 #' This function uses a compiled Dirichlet multinomial model and performs variational inference estimation of posteriors using 'Stan'.
@@ -448,7 +441,7 @@ varHMC <- function(countData,
 #'
 #' Warning: data must be input in the correct organized format or this function will not provide accurate results. See vignette if you are unsure how to organize data.
 #' Warning: depending upon size of data to be analyzed this function can take a very long time to run.
-#' @param countData A matrix or data frame of counts, must only include numeric data. Data should be arranged so that the first n rows correspond to one treatment group and the next n rows correspond with the next treatment group, and so on. The row indices for the first and last sample in these groups are fed into this function via 'starts' and 'ends'.
+#' @param countData A matrix or data frame of counts.The first field should be sample names and the subsequent fields should be integer data. Data should be arranged so that the first n rows correspond to one treatment group and the next n rows correspond with the next treatment group, and so on. The row indices for the first and last sample in these groups are fed into this function via 'starts' and 'ends'.
 #' @param starts A vector defining the indices that correspond to the first sample in each treatment group.
 #' @param ends A vector defining the indices that correspond to the last sample in each treatment group.
 #' @param algorithm The algorithm to use when performing variational inference. Either 'meanfield' or 'fullrank'. The former is the default.
