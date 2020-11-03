@@ -500,3 +500,45 @@ varInf <- function(countData,
                          pars <- params_to_save)
   return(fitstan_VI)
 }
+
+#' Determine indices for treatment groups
+#'
+#' This function determines the indices for the first and last replicates within a vector describing treatment group.
+#'
+#' @return A list with two named elements that contain start and end indices.
+#' @examples
+#' indexer(c(rep("treatment1",5), rep("treatment2",5)))
+#' @export
+indexer <- function(x){
+  starts <- vector()
+  ends <- vector()
+  k <- 1
+  for(i in unique(x)){
+    if(is.na(i)){
+      print("One of the treatment groups is coded as NA. It should be recoded as something else.")
+      break
+    }
+    #Extract the indices for the treatment
+    indices <- which(x == i)
+    #Make a sequence from the min to the max of the indices.
+    #We will use this to test that the indices are in order and that the data are formatted properly.
+    test_indices <- seq(min(indices), max(indices), by = 1)
+    if(any((indices == test_indices) == F)){
+      print("ERROR: it does not appear that all the replicates for a treatment group are adjacent.")
+    }else{
+      starts[k] <- min(indices)
+      ends[k] <- max(indices)
+      k <- k + 1
+    }
+  }
+  if(length(starts) != length(unique(x))){
+    print("ERROR: there was a problem trying to calculate starting and ending indices for each treatment group. Check data formatting.")
+    return("FAILED")
+  }
+  if(length(ends) != length(unique(x))){
+    print("ERROR: there was a problem trying to calculate starting and ending indices for each treatment group. Check data formatting.")
+    return("FAILED")
+  }
+  return(list(starts = starts,
+              ends = ends))
+}
