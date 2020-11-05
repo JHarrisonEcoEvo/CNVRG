@@ -413,6 +413,12 @@ varHMC <- function(countData,
   if(any(countData == 0)){
     stop("Zeros exist in the data. A pseudocount (e.g., 1) should be added to all of the data to avoid taking the log of zero.")
   }
+  if( burn == samples){
+    print("Burn-in is the same length as sampling. This means that you won't get any samples, 
+          because the integer for burn in is subtracted from the integer for samples. This is
+          just how Stan/Rstan does it. So if you want 500 burn in and 1000 samples, then
+          choose burn in = 500 and samples = 1500.")
+  }
   treatments <- length(starts)
   fitstan_HMC <-rstan::sampling(stanmodels$dm,
                                 data =list("datamatrix" = countData[,2:dim(countData)[2]],
