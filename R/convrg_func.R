@@ -511,6 +511,7 @@ varInf <- function(countData,
 #'
 #' This function determines the indices for the first and last replicates within a vector describing treatment group.
 #'
+#' @param x Vector input.
 #' @return A list with two named elements that contain start and end indices.
 #' @examples
 #' indexer(c(rep("treatment1",5), rep("treatment2",5)))
