@@ -353,6 +353,9 @@ isd_transform <- function(model_output, isd_index, countData){
 #' This function uses a compiled Dirichlet-multinomial model and performs Hamiltonian Monte Carlo sampling of posteriors using 'Stan'.
 #' After sampling it is important to check convergence. Use the summary function and shinystan to do this.
 #' If you use this function then credit 'Stan' and 'RStan' along with this package. 
+#' 
+#' It can be helpful to use the indexer function to automatically identify the indices needed for the 'starts' and 'ends' parameters. See the vignette for an example.
+#' 
 #' Warning: data must be input in the correct organized format or this function will not provide accurate results. See vignette if you are unsure how to organize data.
 #' Warning: depending upon size of data to be analyzed this function can take a very long time to run.
 #' @param countData A matrix or data frame of counts.The first field should be sample names and the subsequent fields should be integer data. Data should be arranged so that the first n rows correspond to one treatment group and the next n rows correspond with the next treatment group, and so on. The row indices for the first and last sample in these groups are fed into this function via 'starts' and 'ends'.
@@ -444,6 +447,8 @@ varHMC <- function(countData,
 #' This function uses a compiled Dirichlet multinomial model and performs variational inference estimation of posteriors using 'Stan'.
 #' Evaluating the performance of variational inference is currently under development per our understanding. Please roll over to the 'Stan' website and see if new diagnostics are available.
 #' If you use this function then credit 'Stan' and 'RStan' along with this package.
+#' 
+#' It can be helpful to use the indexer function to automatically identify the indices needed for the 'starts' and 'ends' parameters. See the vignette for an example.
 #'
 #' Warning: data must be input in the correct organized format or this function will not provide accurate results. See vignette if you are unsure how to organize data.
 #' Warning: depending upon size of data to be analyzed this function can take a very long time to run.

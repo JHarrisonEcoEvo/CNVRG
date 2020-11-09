@@ -45,6 +45,10 @@ A fitted 'Stan' object that includes the samples from the parameters designated.
 This function uses a compiled Dirichlet-multinomial model and performs Hamiltonian Monte Carlo sampling of posteriors using 'Stan'.
 After sampling it is important to check convergence. Use the summary function and shinystan to do this.
 If you use this function then credit 'Stan' and 'RStan' along with this package.
+}
+\details{
+It can be helpful to use the indexer function to automatically identify the indices needed for the 'starts' and 'ends' parameters. See the vignette for an example.
+
 Warning: data must be input in the correct organized format or this function will not provide accurate results. See vignette if you are unsure how to organize data.
 Warning: depending upon size of data to be analyzed this function can take a very long time to run.
 }

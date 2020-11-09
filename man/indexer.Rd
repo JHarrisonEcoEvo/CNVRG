@@ -6,6 +6,9 @@
 \usage{
 indexer(x)
 }
+\arguments{
+\item{x}{Vector input.}
+}
 \value{
 A list with two named elements that contain start and end indices.
 }
