@@ -42,15 +42,15 @@ For instance, consider:
 ```{r}
 fungi$treatment
 ```
-All replicates for each of the four treatment groups in these example data are placed together in the matrix. The first and last indices for replicates in each of these treatment groups are used to tell the function which rows in the matrix correspond to a particular sampling group. See the vectors passed in as arguments for 'starts' and 'ends' in the example immediately below. 
+All replicates for each of the four treatment groups in these example data are placed together in the matrix. The first and last indices for replicates in each of these treatment groups are used to tell the function which rows in the matrix correspond to a particular sampling group. See the vectors passed in as arguments for 'starts' and 'ends' in the example immediately below. The 'indexer' function is a convenient way to specify starting and ending indices. This function takes as input a vector with treatments and outputs a named list with two elements, one element with starting indices and one with ending indices. For a demonstration of how it works, see the next code chunk. You can of course specify the starting and ending indices as a vector if you wish. An example of vector style specification is commented out in the code below.
 
 Note if zeros exist in the data, then a pseudocount should be added. A one is used in this case. 
 
 ```{r, results='hide'}
 fungi[,2:length(fungi)] <- 1 + fungi[,2:length(fungi)]
 modelOut <- varHMC(countData = fungi, 
-       starts = c(1,39,76,113),
-       ends = c(38,75,112,148),
+       starts = indexer(fungi$treatment)$starts, #c(1,39,76,113),
+       ends = indexer(fungi$treatment)$ends, #c(38,75,112,148),
        chains = 2, 
        burn = 500, 
        samples = 2000, 
