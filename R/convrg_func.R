@@ -106,6 +106,11 @@ diff_abund <- function(model_output, countData){
 #'
 #' Calculate Shannon's or Simpson's entropies for each replicate while propagating uncertainty in relative abundance estimates through calculations.
 #'
+#' Takes as input either a fitted Stan oject from the varHMC or varInf functions, or a list that is the extracted pi values from one of those objects. 
+#' It may be desirable to extrat pi values from a fitted model object and transform them, e.g., via division by an ISD, before calculating diversity entropies.
+#' So long as the input list of posterior samples follow the same format as they do within the fitted model objects, this function should perform as expected.
+#' As always, doublecheck the results to ensure the function has output reasonable values. 
+#' 
 #' @param model_output Object from fitted 'Stan' model that has samples describing posteriors of focal parameters.
 #' @param countData Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.
 #' @param params Parameter for which to calculate diversity, can be 'p' or 'pi' or both (e.g., c("pi","p"))
@@ -126,7 +131,8 @@ diversity_calc <- function(model_output, countData, params = "pi", entropy_measu
     stop("'params' must be specified and be either p or pi.")
   }
   if("pi" %in% params){
-    pis <- rstan::extract(model_output, "pi")
+    if(class(model_output) == "stanfit"){
+      pis <- rstan::extract(model_output, "pi")
     #This pulls out the second element in the dimensions of pi, which is the number of treatments
     treatments <- rapply(pis, dim, how="list")$pi[2]
     entropy_pi <- list()
@@ -154,9 +160,45 @@ diversity_calc <- function(model_output, countData, params = "pi", entropy_measu
       }else{
         stop("It appears that you didn't choose either 'simpson' or 'shannon' for your entropy index.")
       }
+    } #FOR ALTERNATE LIST INPUT
+    }else{
+      pis <- model_output
+      "Model input appears to be a list, not an Rstan fitted object."
+      #This pulls out the second element in the dimensions of pi, which is the number of treatments
+      treatments <- dim(pis)[2]
+      entropy_pi <- list()
+      if(equivalents == T){
+        if(entropy_measure == "shannon"){
+          for(i in 1:treatments){
+            entropy_pi[[i]] <- exp(vegan::diversity(pis[,i,], index = entropy_measure))
+          }
+        }else if (entropy_measure == "simpson"){
+          for(i in 1:treatments){
+            entropy_pi[[i]] <- 1 / (vegan::diversity(pis[,i,], index = entropy_measure))
+          }
+        }else{
+          stop("It appears that you didn't choose either 'simpson' or 'shannon' for your entropy index.")
+        }
+      }else{
+        if(entropy_measure == "shannon"){
+          for(i in 1:treatments){
+            entropy_pi[[i]] <- vegan::diversity(pis[,i,], index = entropy_measure)
+          }
+        }else if (entropy_measure == "simpson"){
+          for(i in 1:treatments){
+            entropy_pi[[i]] <- vegan::diversity(pis[,i,], index = entropy_measure)
+          }
+        }else{
+          stop("It appears that you didn't choose either 'simpson' or 'shannon' for your entropy index.")
+        }
+      }
     }
   }
+  
   if("p" %in% params){
+    if(class(model_output) != "stanfit"){
+     stop("ERROR: p parameters can not be processed for objects that are not of class 'stanfit'. If you want to calculate diversity for p parameters, then pass in the Stan Object. If you want to calculate diversity for p parameters that are not in a stanfit objec, such as those that have been estimated via maximum likelihood, it is better to use the standard vegan 'diversity' function.") 
+    }
     ps <- rstan::extract(model_output, "p")
     reps <- rapply(ps, dim, how="list")$p[2]
     entropy_p <- list()
