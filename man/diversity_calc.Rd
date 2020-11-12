@@ -29,6 +29,12 @@ A list that has samples from posterior distributions of entropy metrics
 \description{
 Calculate Shannon's or Simpson's entropies for each replicate while propagating uncertainty in relative abundance estimates through calculations.
 }
+\details{
+Takes as input either a fitted Stan oject from the varHMC or varInf functions, or a list that is the extracted pi values from one of those objects.
+It may be desirable to extrat pi values from a fitted model object and transform them, e.g., via division by an ISD, before calculating diversity entropies.
+So long as the input list of posterior samples follow the same format as they do within the fitted model objects, this function should perform as expected.
+As always, doublecheck the results to ensure the function has output reasonable values.
+}
 \examples{
 com_demo <-matrix(0, nrow = 10, ncol = 10)
 com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
