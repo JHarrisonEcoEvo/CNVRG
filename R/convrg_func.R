@@ -287,18 +287,20 @@ extract_point_estimate <- function(modelOut, countData, treatments){
 
 #' Transform data into estimates of absolute abundances using an ISD
 #'
-#' If an internal standard (ISD) has been added to samples such that the counts for that standard are representative of the same absolute abundance, then the ISD can be used to transform relative abundance data into estimates of absolute abundances (Harrison et al. 2020). 
+#' If an internal standard (ISD) has been added to samples such that the counts for that standard are representative of the same absolute abundance, then the ISD can be used to transform relative abundance data such that they are proportional to absolute abundances (Harrison et al. 2020). 
 #' This function performs this division while preserving uncertainty in relative abundance estimates of both the ISD and the other features present.
 #' 
-#' An index for the ISD must be provided. This should be the field index that corresponds with the ISD. Remember that the index should mirror what has been modelled in that it there is NOT an initial field that contains the sample name.
-#' If the wrong index is passed in, the output of this function will be incorrect, but there will not be a fatal error or warning. 
+#' An index for the ISD must be provided. This should be the field index that corresponds with the ISD. Remember that the index should mirror what has been modelled.
+#' If the wrong index is passed in, the output of this function will be incorrect, but there will not be a fatal error or warning.
 #' 
-#' A simple check is to examine the output and make sure that the field that should correspond with the ISD is one (signifying that the ISD was divided by itself).
+#' A simple check that the correct index has been passed to the function is to examine the output and make sure that the field that should correspond with the ISD is one (signifying that the ISD was divided by itself).
 #' 
+#' Output format can either be maximum likelihood estimates of each pi parameter or the transformed samples from the posterior distribution for that parameter. The maximum likelihood estimate is simply the mean of the posterior distribution.
 #' Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources.
 #' @param model_output A fitted 'Stan' object.
 #' @param countData The count data modelled.
 #' @param isd_index The index for the field with information for the internal standard.
+#' @param format The output format. Can be either 'samples' or 'ml'. The former option outputs samples from the posterior probability distribution, the latter outputs maximum likelihood estimates for each parameter.
 #' @return A dataframe specifying point estimates for each feature in each treatment group.
 #' @examples
 #' com_demo <-matrix(0, nrow = 10, ncol = 10)
@@ -306,12 +308,13 @@ extract_point_estimate <- function(modelOut, countData, treatments){
 #' com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
 #' names(com_demo) <- rep("name", 10)
 #' out <- varInf(com_demo,starts = c(1,6), ends=c(5,10))
-#' transformed_data <- isd_transform(model_output = out, countData = com_demo, isd_index = 2)
+#' transformed_data <- isd_transform(model_output = out, countData = com_demo, isd_index = 3)
 #' @export
-isd_transform <- function(model_output, isd_index, countData){
+isd_transform <- function(model_output, isd_index, countData, format = "samples"){
   if(exists("isd_index") == F){
     stop("An index for the ISD has not been provided.")
   }
+  isd_index <- isd_index - 1 #This is because the modelled p values are one fewer then the dimensions of the count data, because the count data had a sample name column.
   if(model_output@stan_args[[1]]$method == "sampling"){
     pis <- rstan::extract(model_output, "pi")
     treatments <- rapply(pis, dim, how="list")$pi[2]
@@ -343,6 +346,10 @@ isd_transform <- function(model_output, isd_index, countData){
       # head(unlist(divisor))
       # head(groupo[[2]])
       k <- k + 1
+    }
+    
+    if(format == "ml"){
+      out <- apply(isdOut$pi[, , ], MARGIN = c(2, 3), FUN = mean)
     }
     return(out)
   }
