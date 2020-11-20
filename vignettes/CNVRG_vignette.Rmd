@@ -48,7 +48,7 @@ Note if zeros exist in the data, then a pseudocount should be added. A one is us
 
 ```{r, results='hide'}
 fungi[,2:length(fungi)] <- 1 + fungi[,2:length(fungi)]
-modelOut <- varHMC(countData = fungi, 
+modelOut <- cnvrg_HMC(countData = fungi, 
        starts = indexer(fungi$treatment)$starts, #c(1,39,76,113),
        ends = indexer(fungi$treatment)$ends, #c(38,75,112,148),
        chains = 2, 

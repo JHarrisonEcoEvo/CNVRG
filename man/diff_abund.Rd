@@ -26,6 +26,11 @@ The output of this function gives the proportion of samples that were greater th
 com_demo <-matrix(0, nrow = 10, ncol = 10)
 com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
 com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
-out <- varInf(com_demo,starts = c(1,6), ends=c(5,10))
+sample_vec <- NA
+for(i in 1:length(com_demo[,1])){
+sample_vec[i] <- paste("sample", i, sep = "_")
+}
+com_demo <- data.frame(sample_vec, com_demo)
+out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
 diff_abund_test <- diff_abund(model_output = out, countData = com_demo)
 }

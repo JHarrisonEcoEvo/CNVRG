@@ -16,7 +16,7 @@ isd_transform(model_output, isd_index, countData, format = "samples")
 \item{format}{The output format. Can be either 'samples' or 'ml'. The former option outputs samples from the posterior probability distribution, the latter outputs maximum likelihood estimates for each parameter.}
 }
 \value{
-A dataframe specifying point estimates for each feature in each treatment group.
+A dataframe, or list, specifying either point estimates for each feature in each treatment group (if output format is 'ml') or samples from the posteriof (if output format is 'samples').
 }
 \description{
 If an internal standard (ISD) has been added to samples such that the counts for that standard are representative of the same absolute abundance, then the ISD can be used to transform relative abundance data such that they are proportional to absolute abundances (Harrison et al. 2020).
@@ -32,10 +32,23 @@ Output format can either be maximum likelihood estimates of each pi parameter or
 Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources.
 }
 \examples{
+#simulate an OTU table
 com_demo <-matrix(0, nrow = 10, ncol = 10)
 com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
 com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
-names(com_demo) <- rep("name", 10)
-out <- varInf(com_demo,starts = c(1,6), ends=c(5,10))
-transformed_data <- isd_transform(model_output = out, countData = com_demo, isd_index = 3)
+fornames <- NA
+for(i in 1:length(com_demo[1,])){
+fornames[i] <- paste("otu_", i, sep = "")
+}
+sample_vec <- NA
+for(i in 1:length(com_demo[,1])){
+sample_vec[i] <- paste("sample", i, sep = "_")
+}
+com_demo <- data.frame(sample_vec, com_demo)
+names(com_demo) <- c("sample", fornames)
+
+#Model the data
+out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
+#Transform the data
+transformed_data <- isd_transform(model_output = out, countData = com_demo, isd_index = 3, format = "ml")
 }
