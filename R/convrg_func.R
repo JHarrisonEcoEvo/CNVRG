@@ -21,15 +21,21 @@
 #' @param params_to_save The parameters from which to save samples. Can be 'p', 'pi', 'theta'.
 #' @return A fitted 'Stan' object that includes the samples from the parameters designated.
 #' @examples
+#' #simulate an OTU table
 #' com_demo <-matrix(0, nrow = 10, ncol = 10)
 #' com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
 #' com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
-#' names(com_demo) <- rep("name", 10)
+#' fornames <- NA
+#' for(i in 1:length(com_demo[1,])){
+#' fornames[i] <- paste("otu_", i, sep = "")
+#' }
 #' sample_vec <- NA
 #' for(i in 1:length(com_demo[,1])){
 #' sample_vec[i] <- paste("sample", i, sep = "_")
 #' }
 #' com_demo <- data.frame(sample_vec, com_demo)
+#' names(com_demo) <- c("sample", fornames)
+#' 
 #' #These are toy data, many more samples, multiple chains, and a longer burn
 #' #are likely advisable for real data.
 #' fitstan_HMC <- cnvrg_HMC(com_demo,starts = c(1,6),
@@ -116,15 +122,21 @@ cnvrg_HMC <- function(countData,
 #' @param params_to_save The parameters from which to save samples. Can be 'p', 'pi', 'theta'.
 #' @return A fitted 'Stan' object that includes the samples from the parameters designated.
 #' @examples
+#' #simulate an OTU table
 #' com_demo <-matrix(0, nrow = 10, ncol = 10)
 #' com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
 #' com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
-#' names(com_demo) <- rep("name", 10)
+#' fornames <- NA
+#' for(i in 1:length(com_demo[1,])){
+#' fornames[i] <- paste("otu_", i, sep = "")
+#' }
 #' sample_vec <- NA
 #' for(i in 1:length(com_demo[,1])){
 #' sample_vec[i] <- paste("sample", i, sep = "_")
 #' }
 #' com_demo <- data.frame(sample_vec, com_demo)
+#' names(com_demo) <- c("sample", fornames)
+#' 
 #' cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
 #' @export
 cnvrg_VI <- function(countData,
@@ -185,14 +197,21 @@ cnvrg_VI <- function(countData,
 #' @param countData Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.
 #' @return A dataframe with the first field denoting the treatment comparison (e.g., treatment 1 vs. 2) and subsequent fields stating the proportion of samples from the posterior that were greater than zero.
 #' @examples
+#' #simulate an OTU table
 #' com_demo <-matrix(0, nrow = 10, ncol = 10)
 #' com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
 #' com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
+#' fornames <- NA
+#' for(i in 1:length(com_demo[1,])){
+#' fornames[i] <- paste("otu_", i, sep = "")
+#' }
 #' sample_vec <- NA
 #' for(i in 1:length(com_demo[,1])){
 #' sample_vec[i] <- paste("sample", i, sep = "_")
 #' }
 #' com_demo <- data.frame(sample_vec, com_demo)
+#' names(com_demo) <- c("sample", fornames)
+#' 
 #' out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
 #' diff_abund_test <- diff_abund(model_output = out, countData = com_demo)
 #' @export
@@ -298,15 +317,21 @@ diff_abund <- function(model_output, countData){
 #' @param equivalents Convert entropies into number equivalents. Defaults to true. See Jost (2006), "Entropy and diversity"
 #' @return A list that has samples from posterior distributions of entropy metrics
 #' @examples
+#' #simulate an OTU table
 #' com_demo <-matrix(0, nrow = 10, ncol = 10)
 #' com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
 #' com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
-#' names(com_demo) <- rep("name", 10)
+#' fornames <- NA
+#' for(i in 1:length(com_demo[1,])){
+#' fornames[i] <- paste("otu_", i, sep = "")
+#' }
 #' sample_vec <- NA
 #' for(i in 1:length(com_demo[,1])){
 #' sample_vec[i] <- paste("sample", i, sep = "_")
 #' }
 #' com_demo <- data.frame(sample_vec, com_demo)
+#' names(com_demo) <- c("sample", fornames)
+#' 
 #' out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
 #' diversity_calc(model_output = out,params = c("pi","p"),
 #' countData = com_demo, entropy_measure = 'shannon')
@@ -431,14 +456,21 @@ diversity_calc <- function(model_output, countData, params = "pi", entropy_measu
 #' @param treatments An integer describing how many treatment groups were modelled.
 #' @return A dataframe specifying point estimates for each feature in each treatment group.
 #' @examples
+#' #simulate an OTU table
 #' com_demo <-matrix(0, nrow = 10, ncol = 10)
 #' com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
 #' com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
+#' fornames <- NA
+#' for(i in 1:length(com_demo[1,])){
+#' fornames[i] <- paste("otu_", i, sep = "")
+#' }
 #' sample_vec <- NA
 #' for(i in 1:length(com_demo[,1])){
 #' sample_vec[i] <- paste("sample", i, sep = "_")
 #' }
 #' com_demo <- data.frame(sample_vec, com_demo)
+#' names(com_demo) <- c("sample", fornames)
+#' 
 #' out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
 #' extract_point_estimate(modelOut = out, countData = com_demo, treatments = 2)
 #' @export
@@ -597,7 +629,8 @@ indexer <- function(x){
 #' #Model the data
 #' out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
 #' #Transform the data
-#' transformed_data <- isd_transform(model_output = out, countData = com_demo, isd_index = 3, format = "ml")
+#' transformed_data <- isd_transform(model_output = out, countData = com_demo,
+#' isd_index = 3, format = "ml")
 #' @export
 isd_transform <- function(model_output, isd_index, countData, format = "samples"){
   if(exists("isd_index") == F){
@@ -612,29 +645,29 @@ isd_transform <- function(model_output, isd_index, countData, format = "samples"
     
     for(i in 1:treatments){
       #Recall the array goes samples, groups, features
-      out[[1]][,i,] <-  out[[1]][,i,] / out[[1]][,i,isd_index]
+      out$pi[,i,] <-  out$pi[,i,] / out$pi[,i,isd_index]
     }
     if(format == "ml"){
-      treats <- NA
+      groupnms <- NA
       for(i in 1:treatments){
-        treats[i] <- paste("treatment_group_",treatments[i], sep = "")
+        groupnms[i] <- paste("treatment_group_",i, sep = "")
       }
-      out <- data.frame(treats,
+      out <- data.frame(groupnms,
                         apply(out$pi[, , ], MARGIN = c(2, 3), FUN = mean))
       
-      names(out) <- c("treatment_group",names(com_demo)[2:length(names(com_demo))])
+      names(out) <- c("treatment_group",names(countData)[2:length(names(countData))])
     }
   }
   
   if(model_output@stan_args[[1]]$method == "variational"){
     pis <- model_output@sim$samples[[1]][grep("pi",names(model_output@sim$samples[[1]]))]
     #Identify treatment groups
-    treats <- unique(gsub("pi\\.(\\d+)\\.\\d+", "\\1", names(pis)))
+    treatments <- unique(gsub("pi\\.(\\d+)\\.\\d+", "\\1", names(pis)))
     
     #Loop by treatment group and perform the division
     out <- list()
     k <- 1
-    for(i in treats){
+    for(i in treatments){
       groupo <- pis[gsub("pi\\.(\\d+)\\.\\d+", "\\1", names(pis)) == i]
       divisor <- groupo[gsub("pi\\.\\d+\\.(\\d+)", "\\1", names(groupo)) == as.character(isd_index)]
       
@@ -646,13 +679,10 @@ isd_transform <- function(model_output, isd_index, countData, format = "samples"
       k <- k + 1
     }
     if(format == "ml"){
-      treats <- NA
-      for(i in 1:treatments){
-        treats[i] <- paste("treatment_group_",treatments[i], sep = "")
-      }
+      groupnms <- paste("treatment_group_",treatments, sep = "")
       out <- lapply(out, sapply, mean)
-      out <- data.frame(treats, matrix(unlist(out), nrow=treatments, byrow=T))
-      names(out) <- c("treatment_group",names(com_demo)[2:length(names(com_demo))])
+      out <- data.frame(groupnms, matrix(unlist(out), nrow=length(treatments), byrow=T))
+      names(out) <- c("treatment_group",names(countData)[2:length(names(countData))])
     }
   }
   return(out)

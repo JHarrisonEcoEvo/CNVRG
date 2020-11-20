@@ -50,5 +50,6 @@ names(com_demo) <- c("sample", fornames)
 #Model the data
 out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
 #Transform the data
-transformed_data <- isd_transform(model_output = out, countData = com_demo, isd_index = 3, format = "ml")
+transformed_data <- isd_transform(model_output = out, countData = com_demo,
+isd_index = 3, format = "ml")
 }

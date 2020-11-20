@@ -36,15 +36,21 @@ So long as the input list of posterior samples follow the same format as they do
 As always, doublecheck the results to ensure the function has output reasonable values.
 }
 \examples{
+#simulate an OTU table
 com_demo <-matrix(0, nrow = 10, ncol = 10)
 com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
 com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
-names(com_demo) <- rep("name", 10)
+fornames <- NA
+for(i in 1:length(com_demo[1,])){
+fornames[i] <- paste("otu_", i, sep = "")
+}
 sample_vec <- NA
 for(i in 1:length(com_demo[,1])){
 sample_vec[i] <- paste("sample", i, sep = "_")
 }
 com_demo <- data.frame(sample_vec, com_demo)
+names(com_demo) <- c("sample", fornames)
+
 out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
 diversity_calc(model_output = out,params = c("pi","p"),
 countData = com_demo, entropy_measure = 'shannon')
