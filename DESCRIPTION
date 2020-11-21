@@ -1,6 +1,6 @@
 Package: CNVRG
 Title: Dirichlet-Multinomial Modelling of Relative Abundance Data
-Version: 0.1
+Version: 0.2
 Authors@R: 
     c(person(given = "Joshua",
            family = "Harrison",
