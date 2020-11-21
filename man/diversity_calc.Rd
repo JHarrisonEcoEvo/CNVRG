@@ -31,7 +31,7 @@ Calculate Shannon's or Simpson's entropies for each replicate while propagating 
 }
 \details{
 Takes as input either a fitted Stan oject from the cnvrg_HMC or cnvrg_VI functions, or a list that is the extracted pi values from one of those objects.
-It may be desirable to extrat pi values from a fitted model object and transform them, e.g., via division by an ISD, before calculating diversity entropies.
+It may be desirable to extract pi values from a fitted model object and transform them, e.g., via division by an ISD, before calculating diversity entropies.
 So long as the input list of posterior samples follow the same format as they do within the fitted model objects, this function should perform as expected.
 As always, doublecheck the results to ensure the function has output reasonable values.
 }
