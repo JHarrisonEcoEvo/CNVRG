@@ -451,7 +451,7 @@ diversity_calc <- function(model_output, countData, params = "pi", entropy_measu
 #' Extract point estimates of pi parameters
 #'
 #' Takes the mean value of pi parameters for each feature and separately by treatment group.
-#' @param modelOut Fitted Stan object
+#' @param model_out Fitted Stan object
 #' @param countData The count data modelled.
 #' @param treatments An integer describing how many treatment groups were modelled.
 #' @return A dataframe specifying point estimates for each feature in each treatment group.
@@ -472,9 +472,9 @@ diversity_calc <- function(model_output, countData, params = "pi", entropy_measu
 #' names(com_demo) <- c("sample", fornames)
 #' 
 #' out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
-#' extract_point_estimate(modelOut = out, countData = com_demo, treatments = 2)
+#' extract_point_estimate(model_output = out, countData = com_demo, treatments = 2)
 #' @export
-extract_point_estimate <- function(modelOut, countData, treatments){
+extract_point_estimate <- function(model_output, countData, treatments){
   
   #Make names for treatment groups for convenience
   treats <- vector()
@@ -484,13 +484,13 @@ extract_point_estimate <- function(modelOut, countData, treatments){
 
   #Extract point estimates for pis
   #Use different methods to obtain estimates depending upon posterior estimation method.
-  if(modelOut@stan_args[[1]]$method == "variational"){
+  if(model_output@stan_args[[1]]$method == "variational"){
     #extract pi samples
-    out_pis <- modelOut@sim$est$pi
+    out_pis <- model_output@sim$est$pi
     colnames(out_pis) <- names(countData)[2:length(names(countData))]
   }
-  if(modelOut@stan_args[[1]]$method == "sampling"){
-    pis <- rstan::extract(modelOut, "pi")
+  if(model_output@stan_args[[1]]$method == "sampling"){
+    pis <- rstan::extract(model_output, "pi")
     out_pis <-
       data.frame(treats, apply(pis$pi[, , ], MARGIN = c(2, 3), FUN = mean))
     colnames(out_pis) <-
@@ -499,16 +499,16 @@ extract_point_estimate <- function(modelOut, countData, treatments){
   
   #Catch ps only if they exist
   
-  if( length(grep("^p[\\.[]", names(modelOut@sim$samples[[1]]))) != 0 ){
+  if( length(grep("^p[\\.[]", names(model_output@sim$samples[[1]]))) != 0 ){
     #Extract point estimates for ps
     #Note that, for now, we use the same extraction approach regardless of sampling method
     #This could change though.
-    if(modelOut@stan_args[[1]]$method == "variational"){
-      out_ps <-  modelOut@sim$est$p
+    if(model_output@stan_args[[1]]$method == "variational"){
+      out_ps <-  model_output@sim$est$p
       colnames(out_ps) <- names(countData)[2:dim(countData)[2]]
     }
-    if(modelOut@stan_args[[1]]$method == "sampling"){
-      ps <- rstan::extract(modelOut, "p")
+    if(model_output@stan_args[[1]]$method == "sampling"){
+      ps <- rstan::extract(model_output, "p")
       out_ps <- data.frame(countData[,1], apply(ps$p[, , ], MARGIN = c(2, 3), FUN = mean))
       colnames(out_ps) <-
         c("sample",  names(countData)[2:dim(countData)[2]])
@@ -517,31 +517,31 @@ extract_point_estimate <- function(modelOut, countData, treatments){
   if(is.null(names(countData)[2:dim(countData)[2]]) | any(is.na(names(countData)[2:dim(countData)[2]]))){
     print("The names of the count data provided include NA or are NULL. If more informative names are desired for the output then the count matrix should have column names.")
   }
-  if(modelOut@stan_args[[1]]$method == "variational"){
-    if(length(grep("^p\\.", names(modelOut@sim$samples[[1]]))) != 0 & length(grep("^pi\\.", names(modelOut@sim$samples[[1]]))) != 0){
+  if(model_output@stan_args[[1]]$method == "variational"){
+    if(length(grep("^p\\.", names(model_output@sim$samples[[1]]))) != 0 & length(grep("^pi\\.", names(model_output@sim$samples[[1]]))) != 0){
       return(list(
         pointEstimates_p = out_ps,
         pointEstimates_pi = out_pis)
-      )}else if(length(grep("^pi\\.", names(modelOut@sim$samples[[1]]))) != 0 & length(grep("^p\\.", names(modelOut@sim$samples[[1]]))) == 0){
+      )}else if(length(grep("^pi\\.", names(model_output@sim$samples[[1]]))) != 0 & length(grep("^p\\.", names(model_output@sim$samples[[1]]))) == 0){
         return(list(
           pointEstimates_pi = out_pis)
         )
-      }else if(length(grep("^pi\\.", names(modelOut@sim$samples[[1]]))) == 0 & length(grep("^p\\.", names(modelOut@sim$samples[[1]]))) != 0){
+      }else if(length(grep("^pi\\.", names(model_output@sim$samples[[1]]))) == 0 & length(grep("^p\\.", names(model_output@sim$samples[[1]]))) != 0){
         return(list(
           pointEstimates_p = out_ps)
         )
       }
   }
-  if(modelOut@stan_args[[1]]$method == "sampling"){
-    if(length(grep("^p\\[", names(modelOut@sim$samples[[1]]))) != 0 & length(grep("^pi\\[", names(modelOut@sim$samples[[1]]))) != 0){
+  if(model_output@stan_args[[1]]$method == "sampling"){
+    if(length(grep("^p\\[", names(model_output@sim$samples[[1]]))) != 0 & length(grep("^pi\\[", names(model_output@sim$samples[[1]]))) != 0){
       return(list(
         pointEstimates_p = out_ps,
         pointEstimates_pi = out_pis)
-      )}else if(length(grep("^pi\\[", names(modelOut@sim$samples[[1]]))) != 0 & length(grep("^p\\[", names(modelOut@sim$samples[[1]]))) == 0){
+      )}else if(length(grep("^pi\\[", names(model_output@sim$samples[[1]]))) != 0 & length(grep("^p\\[", names(model_output@sim$samples[[1]]))) == 0){
         return(list(
           pointEstimates_pi = out_pis)
         )
-      }else if(length(grep("^pi\\[", names(modelOut@sim$samples[[1]]))) == 0 & length(grep("^p\\[", names(modelOut@sim$samples[[1]]))) != 0){
+      }else if(length(grep("^pi\\[", names(model_output@sim$samples[[1]]))) == 0 & length(grep("^p\\[", names(model_output@sim$samples[[1]]))) != 0){
         return(list(
           pointEstimates_p = out_ps)
         )
