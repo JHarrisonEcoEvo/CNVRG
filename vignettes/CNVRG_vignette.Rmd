@@ -18,10 +18,9 @@ knitr::opts_chunk$set(
 library(CNVRG)
 library(rstan)
 ```
+'CNVRG' facilitates Dirichlet multinomial modelling of relative abundance data, such as those generated via sequencing of microbiomes. We envision the software being of particular use for microbial and community ecologists. 'CNVRG' wraps functionality provided by 'RStan' and 'Stan' in a simple to use interface (Stan Development Team 2018). Credit should be given to the 'Stan' team if 'CNVRG' is used. Additionally, please cite the 'CNVRG' package and associated Molecular Ecology Resources paper (Harrison et al. 2020a). Thanks!
 
-'CNVRG' wraps functionality provided by 'RStan' and 'Stan' in a simple to use interface (Stan Development Team 2018). Credit should be given to the 'Stan' team if 'CNVRG' is used. Additionally, please cite the 'CNVRG' package and associated Molecular Ecology Resources paper (Harrison et al. 2020a). Thanks!
-
-'CNVRG' facilitates Dirichlet multinomial modelling of relative abundance data, such as those generated via sequencing of microbiomes. We envision the software being of particular use for microbial and community ecologists. The variational inference algorithm provided by 'Stan' extends the utility of the model to modern datasets with many thousands of parameters to estimate.
+If you are new to statistical modeling and want a brief primer that explains the rationale behind the use of the Dirichlet and multinomial distributions for count data see this video that I made: https://use.vg/OSVhFJ
 
 In this vignette, we demonstrate how to use 'CNVRG' on a simple dataset. We urge new users to carefully examine the files used. Data must be formatted properly for 'CNVRG' to work!
 
