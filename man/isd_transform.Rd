@@ -4,10 +4,10 @@
 \alias{isd_transform}
 \title{Transform data into estimates of absolute abundances using an ISD}
 \usage{
-isd_transform(model_output, isd_index, countData, format = "samples")
+isd_transform(model_out, isd_index, countData, format = "samples")
 }
 \arguments{
-\item{model_output}{A fitted 'Stan' object.}
+\item{model_out}{Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI}
 
 \item{isd_index}{The index for the field with information for the internal standard.}
 
@@ -50,6 +50,6 @@ names(com_demo) <- c("sample", fornames)
 #Model the data
 out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
 #Transform the data
-transformed_data <- isd_transform(model_output = out, countData = com_demo,
+transformed_data <- isd_transform(model_out = out, countData = com_demo,
 isd_index = 3, format = "ml")
 }

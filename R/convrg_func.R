@@ -193,7 +193,7 @@ cnvrg_VI <- function(countData,
 #' 
 #' The output of this function gives the proportion of samples that were greater than zero after subtracting two posterior distributions. Therefore, values that are very large or very small denote a high certainty that the distributions subtracted differ. 
 #' 
-#' @param model_output Fitted 'Stan' object.
+#' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
 #' @param countData Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.
 #' @return A dataframe with the first field denoting the treatment comparison (e.g., treatment 1 vs. 2) and subsequent fields stating the proportion of samples from the posterior that were greater than zero.
 #' @examples
@@ -213,11 +213,11 @@ cnvrg_VI <- function(countData,
 #' names(com_demo) <- c("sample", fornames)
 #' 
 #' out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
-#' diff_abund_test <- diff_abund(model_output = out, countData = com_demo)
+#' diff_abund_test <- diff_abund(model_out = out, countData = com_demo)
 #' @export
-diff_abund <- function(model_output, countData){
-  if(model_output@stan_args[[1]]$method == "sampling"){
-    pis <- rstan::extract(model_output, "pi")
+diff_abund <- function(model_out, countData){
+  if(model_out@stan_args[[1]]$method == "sampling"){
+    pis <- rstan::extract(model_out, "pi")
     #This pulls out the second element in the dimensions of pi, which is the number of treatments
     treatments <- rapply(pis, dim, how="list")$pi[2]
     #This gives us number of features
@@ -256,9 +256,9 @@ diff_abund <- function(model_output, countData){
     names(output) <- c("comparison", names(countData)[2:dim(countData)[2]])
     return(output)
   }
-  if(model_output@stan_args[[1]]$method == "variational"){
+  if(model_out@stan_args[[1]]$method == "variational"){
     #extract pi samples
-    pis <- model_output@sim$samples[[1]][grep("pi",names(model_output@sim$samples[[1]]))]
+    pis <- model_out@sim$samples[[1]][grep("pi",names(model_out@sim$samples[[1]]))]
     k <- 1
     treat <- list()
     treatments <- length(unique(gsub("pi\\.(\\d+)\\.\\d+", "\\1", names(pis))))
@@ -310,7 +310,7 @@ diff_abund <- function(model_output, countData){
 #' So long as the input list of posterior samples follow the same format as they do within the fitted model objects, this function should perform as expected.
 #' As always, doublecheck the results to ensure the function has output reasonable values. 
 #' 
-#' @param model_output Object from fitted 'Stan' model that has samples describing posteriors of focal parameters.
+#' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
 #' @param countData Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.
 #' @param params Parameter for which to calculate diversity, can be 'p' or 'pi' or both (e.g., c("pi","p"))
 #' @param entropy_measure Diversity entropy to use, can be one of 'shannon' or 'simpson'
@@ -333,16 +333,16 @@ diff_abund <- function(model_output, countData){
 #' names(com_demo) <- c("sample", fornames)
 #' 
 #' out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
-#' diversity_calc(model_output = out,params = c("pi","p"),
+#' diversity_calc(model_out = out,params = c("pi","p"),
 #' countData = com_demo, entropy_measure = 'shannon')
 #' @export
-diversity_calc <- function(model_output, countData, params = "pi", entropy_measure = "shannon", equivalents = T){
+diversity_calc <- function(model_out, countData, params = "pi", entropy_measure = "shannon", equivalents = T){
   if(any(params %in% c("pi","p")) == F){
     stop("'params' must be specified and be either p or pi.")
   }
   if("pi" %in% params){
-    if(class(model_output) == "stanfit"){
-      pis <- rstan::extract(model_output, "pi")
+    if(class(model_out) == "stanfit"){
+      pis <- rstan::extract(model_out, "pi")
     #This pulls out the second element in the dimensions of pi, which is the number of treatments
     treatments <- rapply(pis, dim, how="list")$pi[2]
     entropy_pi <- list()
@@ -372,7 +372,7 @@ diversity_calc <- function(model_output, countData, params = "pi", entropy_measu
       }
     } #FOR ALTERNATE LIST INPUT
     }else{
-      pis <- model_output
+      pis <- model_out
       "Model input appears to be a list, not an Rstan fitted object."
       #This pulls out the second element in the dimensions of pi, which is the number of treatments
       treatments <- dim(pis)[2]
@@ -406,10 +406,10 @@ diversity_calc <- function(model_output, countData, params = "pi", entropy_measu
   }
   
   if("p" %in% params){
-    if(class(model_output) != "stanfit"){
+    if(class(model_out) != "stanfit"){
      stop("ERROR: p parameters can not be processed for objects that are not of class 'stanfit'. If you want to calculate diversity for p parameters, then pass in the Stan Object. If you want to calculate diversity for p parameters that are not in a stanfit objec, such as those that have been estimated via maximum likelihood, it is better to use the standard vegan 'diversity' function.") 
     }
-    ps <- rstan::extract(model_output, "p")
+    ps <- rstan::extract(model_out, "p")
     reps <- rapply(ps, dim, how="list")$p[2]
     entropy_p <- list()
     if(equivalents == T){
@@ -451,7 +451,7 @@ diversity_calc <- function(model_output, countData, params = "pi", entropy_measu
 #' Extract point estimates of pi parameters
 #'
 #' Takes the mean value of pi parameters for each feature and separately by treatment group.
-#' @param model_out Fitted Stan object
+#' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
 #' @param countData The count data modelled.
 #' @param treatments An integer describing how many treatment groups were modelled.
 #' @return A dataframe specifying point estimates for each feature in each treatment group.
@@ -472,9 +472,9 @@ diversity_calc <- function(model_output, countData, params = "pi", entropy_measu
 #' names(com_demo) <- c("sample", fornames)
 #' 
 #' out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
-#' extract_point_estimate(model_output = out, countData = com_demo, treatments = 2)
+#' extract_point_estimate(model_out = out, countData = com_demo, treatments = 2)
 #' @export
-extract_point_estimate <- function(model_output, countData, treatments){
+extract_point_estimate <- function(model_out, countData, treatments){
   
   #Make names for treatment groups for convenience
   treats <- vector()
@@ -484,13 +484,13 @@ extract_point_estimate <- function(model_output, countData, treatments){
 
   #Extract point estimates for pis
   #Use different methods to obtain estimates depending upon posterior estimation method.
-  if(model_output@stan_args[[1]]$method == "variational"){
+  if(model_out@stan_args[[1]]$method == "variational"){
     #extract pi samples
-    out_pis <- model_output@sim$est$pi
+    out_pis <- model_out@sim$est$pi
     colnames(out_pis) <- names(countData)[2:length(names(countData))]
   }
-  if(model_output@stan_args[[1]]$method == "sampling"){
-    pis <- rstan::extract(model_output, "pi")
+  if(model_out@stan_args[[1]]$method == "sampling"){
+    pis <- rstan::extract(model_out, "pi")
     out_pis <-
       data.frame(treats, apply(pis$pi[, , ], MARGIN = c(2, 3), FUN = mean))
     colnames(out_pis) <-
@@ -499,16 +499,16 @@ extract_point_estimate <- function(model_output, countData, treatments){
   
   #Catch ps only if they exist
   
-  if( length(grep("^p[\\.[]", names(model_output@sim$samples[[1]]))) != 0 ){
+  if( length(grep("^p[\\.[]", names(model_out@sim$samples[[1]]))) != 0 ){
     #Extract point estimates for ps
     #Note that, for now, we use the same extraction approach regardless of sampling method
     #This could change though.
-    if(model_output@stan_args[[1]]$method == "variational"){
-      out_ps <-  model_output@sim$est$p
+    if(model_out@stan_args[[1]]$method == "variational"){
+      out_ps <-  model_out@sim$est$p
       colnames(out_ps) <- names(countData)[2:dim(countData)[2]]
     }
-    if(model_output@stan_args[[1]]$method == "sampling"){
-      ps <- rstan::extract(model_output, "p")
+    if(model_out@stan_args[[1]]$method == "sampling"){
+      ps <- rstan::extract(model_out, "p")
       out_ps <- data.frame(countData[,1], apply(ps$p[, , ], MARGIN = c(2, 3), FUN = mean))
       colnames(out_ps) <-
         c("sample",  names(countData)[2:dim(countData)[2]])
@@ -517,31 +517,31 @@ extract_point_estimate <- function(model_output, countData, treatments){
   if(is.null(names(countData)[2:dim(countData)[2]]) | any(is.na(names(countData)[2:dim(countData)[2]]))){
     print("The names of the count data provided include NA or are NULL. If more informative names are desired for the output then the count matrix should have column names.")
   }
-  if(model_output@stan_args[[1]]$method == "variational"){
-    if(length(grep("^p\\.", names(model_output@sim$samples[[1]]))) != 0 & length(grep("^pi\\.", names(model_output@sim$samples[[1]]))) != 0){
+  if(model_out@stan_args[[1]]$method == "variational"){
+    if(length(grep("^p\\.", names(model_out@sim$samples[[1]]))) != 0 & length(grep("^pi\\.", names(model_out@sim$samples[[1]]))) != 0){
       return(list(
         pointEstimates_p = out_ps,
         pointEstimates_pi = out_pis)
-      )}else if(length(grep("^pi\\.", names(model_output@sim$samples[[1]]))) != 0 & length(grep("^p\\.", names(model_output@sim$samples[[1]]))) == 0){
+      )}else if(length(grep("^pi\\.", names(model_out@sim$samples[[1]]))) != 0 & length(grep("^p\\.", names(model_out@sim$samples[[1]]))) == 0){
         return(list(
           pointEstimates_pi = out_pis)
         )
-      }else if(length(grep("^pi\\.", names(model_output@sim$samples[[1]]))) == 0 & length(grep("^p\\.", names(model_output@sim$samples[[1]]))) != 0){
+      }else if(length(grep("^pi\\.", names(model_out@sim$samples[[1]]))) == 0 & length(grep("^p\\.", names(model_out@sim$samples[[1]]))) != 0){
         return(list(
           pointEstimates_p = out_ps)
         )
       }
   }
-  if(model_output@stan_args[[1]]$method == "sampling"){
-    if(length(grep("^p\\[", names(model_output@sim$samples[[1]]))) != 0 & length(grep("^pi\\[", names(model_output@sim$samples[[1]]))) != 0){
+  if(model_out@stan_args[[1]]$method == "sampling"){
+    if(length(grep("^p\\[", names(model_out@sim$samples[[1]]))) != 0 & length(grep("^pi\\[", names(model_out@sim$samples[[1]]))) != 0){
       return(list(
         pointEstimates_p = out_ps,
         pointEstimates_pi = out_pis)
-      )}else if(length(grep("^pi\\[", names(model_output@sim$samples[[1]]))) != 0 & length(grep("^p\\[", names(model_output@sim$samples[[1]]))) == 0){
+      )}else if(length(grep("^pi\\[", names(model_out@sim$samples[[1]]))) != 0 & length(grep("^p\\[", names(model_out@sim$samples[[1]]))) == 0){
         return(list(
           pointEstimates_pi = out_pis)
         )
-      }else if(length(grep("^pi\\[", names(model_output@sim$samples[[1]]))) == 0 & length(grep("^p\\[", names(model_output@sim$samples[[1]]))) != 0){
+      }else if(length(grep("^pi\\[", names(model_out@sim$samples[[1]]))) == 0 & length(grep("^p\\[", names(model_out@sim$samples[[1]]))) != 0){
         return(list(
           pointEstimates_p = out_ps)
         )
@@ -549,6 +549,45 @@ extract_point_estimate <- function(model_output, countData, treatments){
   }
 }
 
+#' Extract quantiles of pi parameters
+#'
+#' Provides quantiles of pi parameters for each feature and treatment group.
+#' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
+#' @param probs A vector of quantiles
+#' @return A list specifying quantiles for each feature in each treatment group.
+#' @examples
+#' #simulate an OTU table
+#' com_demo <-matrix(0, nrow = 10, ncol = 10)
+#' com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
+#' com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
+#' fornames <- NA
+#' for(i in 1:length(com_demo[1,])){
+#' fornames[i] <- paste("otu_", i, sep = "")
+#' }
+#' sample_vec <- NA
+#' for(i in 1:length(com_demo[,1])){
+#' sample_vec[i] <- paste("sample", i, sep = "_")
+#' }
+#' com_demo <- data.frame(sample_vec, com_demo)
+#' names(com_demo) <- c("sample", fornames)
+#' 
+#' out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
+#' extract_pi_quantiles(model_out = out, probs = c(0.05,0.5,0.95))
+#' @export
+extract_pi_quantiles <- function(model_out, probs = c(0.05,0.5,0.95)){
+  if(any(probs > 1)){
+    print("You are asking for a quantile greater than one. Quantiles must be between zero and one.")
+  }
+  if(model_out@stan_args[[1]]$method == "variational"){
+    pisamples <- model_out@sim$samples[[1]][grep("pi",names(model_out@sim$samples[[1]]))]
+    pisamples <- lapply(pisamples, FUN=quantile, probs = probs)
+  }
+  if(model_out@stan_args[[1]]$method == "sampling"){
+    pis <- rstan::extract(model_out, "pi")
+    pisamples <- apply(pis$pi[, , ], MARGIN = c(2, 3), FUN = quantile, probs = probs)
+  }
+  return(list(pi_quantils = pisamples))
+}
 
 #' Determine indices for treatment groups
 #'
@@ -605,7 +644,7 @@ indexer <- function(x){
 #' 
 #' Output format can either be maximum likelihood estimates of each pi parameter or the transformed samples from the posterior distribution for that parameter. The maximum likelihood estimate is simply the mean of the posterior distribution.
 #' Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources.
-#' @param model_output A fitted 'Stan' object.
+#' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
 #' @param countData The count data modelled.
 #' @param isd_index The index for the field with information for the internal standard.
 #' @param format The output format. Can be either 'samples' or 'ml'. The former option outputs samples from the posterior probability distribution, the latter outputs maximum likelihood estimates for each parameter.
@@ -629,16 +668,16 @@ indexer <- function(x){
 #' #Model the data
 #' out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
 #' #Transform the data
-#' transformed_data <- isd_transform(model_output = out, countData = com_demo,
+#' transformed_data <- isd_transform(model_out = out, countData = com_demo,
 #' isd_index = 3, format = "ml")
 #' @export
-isd_transform <- function(model_output, isd_index, countData, format = "samples"){
+isd_transform <- function(model_out, isd_index, countData, format = "samples"){
   if(exists("isd_index") == F){
     stop("An index for the ISD has not been provided.")
   }
   isd_index <- isd_index - 1 #This is because the modelled p values are one fewer then the dimensions of the count data, because the count data had a sample name column.
-  if(model_output@stan_args[[1]]$method == "sampling"){
-    pis <- rstan::extract(model_output, "pi")
+  if(model_out@stan_args[[1]]$method == "sampling"){
+    pis <- rstan::extract(model_out, "pi")
     treatments <- rapply(pis, dim, how="list")$pi[2]
     
     out <- pis
@@ -659,8 +698,8 @@ isd_transform <- function(model_output, isd_index, countData, format = "samples"
     }
   }
   
-  if(model_output@stan_args[[1]]$method == "variational"){
-    pis <- model_output@sim$samples[[1]][grep("pi",names(model_output@sim$samples[[1]]))]
+  if(model_out@stan_args[[1]]$method == "variational"){
+    pis <- model_out@sim$samples[[1]][grep("pi",names(model_out@sim$samples[[1]]))]
     #Identify treatment groups
     treatments <- unique(gsub("pi\\.(\\d+)\\.\\d+", "\\1", names(pis)))
     

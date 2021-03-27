@@ -4,10 +4,10 @@
 \alias{diff_abund}
 \title{Calculate features with different abundances between treatment groups}
 \usage{
-diff_abund(model_output, countData)
+diff_abund(model_out, countData)
 }
 \arguments{
-\item{model_output}{Fitted 'Stan' object.}
+\item{model_out}{Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI}
 
 \item{countData}{Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.}
 }
@@ -39,5 +39,5 @@ com_demo <- data.frame(sample_vec, com_demo)
 names(com_demo) <- c("sample", fornames)
 
 out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
-diff_abund_test <- diff_abund(model_output = out, countData = com_demo)
+diff_abund_test <- diff_abund(model_out = out, countData = com_demo)
 }

@@ -5,7 +5,7 @@
 \title{Calculate diversity entropies for each replicate}
 \usage{
 diversity_calc(
-  model_output,
+  model_out,
   countData,
   params = "pi",
   entropy_measure = "shannon",
@@ -13,7 +13,7 @@ diversity_calc(
 )
 }
 \arguments{
-\item{model_output}{Object from fitted 'Stan' model that has samples describing posteriors of focal parameters.}
+\item{model_out}{Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI}
 
 \item{countData}{Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.}
 
@@ -52,6 +52,6 @@ com_demo <- data.frame(sample_vec, com_demo)
 names(com_demo) <- c("sample", fornames)
 
 out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
-diversity_calc(model_output = out,params = c("pi","p"),
+diversity_calc(model_out = out,params = c("pi","p"),
 countData = com_demo, entropy_measure = 'shannon')
 }
