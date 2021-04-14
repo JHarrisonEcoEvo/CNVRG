@@ -4,23 +4,26 @@
 \alias{diff_abund}
 \title{Calculate features with different abundances between treatment groups}
 \usage{
-diff_abund(model_out, countData)
+diff_abund(model_out, countData, diffsamples = F)
 }
 \arguments{
 \item{model_out}{Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI}
 
 \item{countData}{Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.}
+
+\item{diffsamples}{Provide samples from the posterior probability distribution of differences.}
 }
 \value{
-A dataframe with the first field denoting the treatment comparison (e.g., treatment 1 vs. 2) and subsequent fields stating the proportion of samples from the posterior that were greater than zero.
+A dataframe with the first field denoting the treatment comparison (e.g., treatment 1 vs. 2) and subsequent fields stating the proportion of samples from the posterior that were greater than zero. Note that each treatment group is compared to all other groups, which leads to some redundancy in output. If diffsamples is set to T then samples from the posterior probability distribution of the differences is also output and the output is a two element list.
 }
 \description{
 This function determines which features within the matrix, be they taxa or molecules, differ in relative abundance among treatment groups.
-Pass in a model object, with samples for pi parameters, and the number of treatment groups.
+Pass in a model object, with samples for pi parameters.
 This function only works for pi parameters.
 }
 \details{
 The output of this function gives the proportion of samples that were greater than zero after subtracting two posterior distributions. Therefore, values that are very large or very small denote a high certainty that the distributions subtracted differ.
+If desired, the posterior probability distribution of differences can also be output, using the diffsamples argument.
 }
 \examples{
 #simulate an OTU table

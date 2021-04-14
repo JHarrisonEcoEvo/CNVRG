@@ -188,14 +188,15 @@ cnvrg_VI <- function(countData,
 #' Calculate features with different abundances between treatment groups
 #'
 #' This function determines which features within the matrix, be they taxa or molecules, differ in relative abundance among treatment groups.
-#' Pass in a model object, with samples for pi parameters, and the number of treatment groups.
+#' Pass in a model object, with samples for pi parameters.
 #' This function only works for pi parameters.
 #' 
 #' The output of this function gives the proportion of samples that were greater than zero after subtracting two posterior distributions. Therefore, values that are very large or very small denote a high certainty that the distributions subtracted differ. 
-#' 
+#' If desired, the posterior probability distribution of differences can also be output, using the diffsamples argument.
 #' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
 #' @param countData Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.
-#' @return A dataframe with the first field denoting the treatment comparison (e.g., treatment 1 vs. 2) and subsequent fields stating the proportion of samples from the posterior that were greater than zero.
+#' @param diffsamples Provide samples from the posterior probability distribution of differences. 
+#' @return A dataframe with the first field denoting the treatment comparison (e.g., treatment 1 vs. 2) and subsequent fields stating the proportion of samples from the posterior that were greater than zero. Note that each treatment group is compared to all other groups, which leads to some redundancy in output. If diffsamples is set to T then samples from the posterior probability distribution of the differences is also output and the output is a two element list.
 #' @examples
 #' #simulate an OTU table
 #' com_demo <-matrix(0, nrow = 10, ncol = 10)
@@ -215,88 +216,74 @@ cnvrg_VI <- function(countData,
 #' out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
 #' diff_abund_test <- diff_abund(model_out = out, countData = com_demo)
 #' @export
-diff_abund <- function(model_out, countData){
-  if(model_out@stan_args[[1]]$method == "sampling"){
-    pis <- rstan::extract(model_out, "pi")
-    #This pulls out the second element in the dimensions of pi, which is the number of treatments
-    treatments <- rapply(pis, dim, how="list")$pi[2]
-    #This gives us number of features
-    features <- rapply(pis, dim, how="list")$pi[3]
-    
-    if(treatments == 1){
-      stop("There is only one treatment group. Is a list of pi parameter samples being passed in? See the vignette.")
-    }
-    
-    diffs <- vector("list", length = treatments)
-    for(i in 1:treatments){
-      for(j in 1:treatments){
-        diffs[[i]][[j]] <- pis[[1]][,i,] - pis[[1]][,j,]
-        #Sanity check
-        # pis[[1]][1:5,1,1:5] -
-        # pis[[1]][1:5,2,1:5] 
-      }
-    }
-    #Next determine the percentage of samples that are greater than zero for each comparison.
-    output <- data.frame(matrix(nrow = treatments^2,
-                                ncol = features + 1))
-    m <- 1
-    for(j in 1:treatments){
-      for(k in 1:treatments){
-        output[m,1] <- paste("treatment_",j, "_vs_treatment_", k, sep = "")
-        #Calculate number of samples for the denominator of percentage calculation
-        denom <- apply(diffs[[j]][[k]],2,FUN=function(x){length(x)})
-        #Calculate number of samples > 0 
-        gtzero <- apply(diffs[[j]][[k]], 2, FUN=function(x){length(which(x>0))})
-        #Save percentage to output
-        output[m,2:length(output)] <- gtzero/denom
-        m <- m + 1
-      }
-    }
-    
-    names(output) <- c("comparison", names(countData)[2:dim(countData)[2]])
-    return(output)
+diff_abund <- function(model_out, countData, diffsamples = F){
+  pis <- rstan::extract(model_out, "pi")
+  #This pulls out the second element in the dimensions of pi, which is the number of treatments
+  treatments <- rapply(pis, dim, how = "list")$pi[2]
+  #This gives us number of features
+  features <- rapply(pis, dim, how = "list")$pi[3]
+  
+  if (treatments == 1) {
+    stop(
+      "There is only one treatment group.
+      Is a list of pi parameter samples being passed in? See the vignette."
+    )
   }
-  if(model_out@stan_args[[1]]$method == "variational"){
-    #extract pi samples
-    pis <- model_out@sim$samples[[1]][grep("pi",names(model_out@sim$samples[[1]]))]
-    k <- 1
-    treat <- list()
-    treatments <- length(unique(gsub("pi\\.(\\d+)\\.\\d+", "\\1", names(pis))))
-    features <- length(unique(gsub("pi\\.\\d+\\.(\\d+)", "\\1", names(pis))))
-    #split by treatment.
-    for(i in unique(gsub("pi\\.(\\d+)\\.\\d+","\\1", names(pis)))){
-      treat[[k]] <- pis[gsub("pi\\.(\\d+)\\.\\d+","\\1", names(pis)) == i]
-      k <- k + 1
-    }
-    #calculate and save differences between posterior samples
-    diffs <- vector("list", length = treatments)
-    
-    for(i in 1:treatments){
-      for(j in 1:treatments){
-        diff_mat <- data.frame(matrix(nrow = length(unlist(treat[[1]][[1]])) , ncol = features))
-        for(l in 1:features){
-          diff_mat[,l] <- unlist(treat[[i]][[l]]) - unlist(treat[[j]][[l]])
-        }
-        diffs[[i]][[j]] <- diff_mat
+  
+  diffs <- vector("list", length = treatments)
+  for (i in 1:treatments) {
+    for (j in 1:treatments) {
+      if(i != j){
+        diffs[[i]][[j]] <- pis[[1]][, i, ] - pis[[1]][, j, ]
       }
+      #Sanity check
+      # pis[[1]][1:5,1,1:5] -
+      # pis[[1]][1:5,2,1:5]
     }
-    #Next determine the percentage of samples that are greater than zero for each comparison.
-    output <- data.frame(matrix(nrow = treatments^2,
-                                ncol = features + 1))
-    m <- 1
-    for(j in 1:treatments){
-      for(k in 1:treatments){
-        output[m,1] <- paste("treatment_",j, "_vs_treatment_", k, sep = "")
-        #calculate number of samples for the denominator of percentage calculation
-        denom <- apply(diffs[[j]][[k]],2,FUN=function(x){length(x)})
-        #Calculate number of samples > 0 
-        gtzero <- apply(diffs[[j]][[k]], 2, FUN=function(x){length(which(x>0))})
-        #save percentage to output
-        output[m,2:length(output)] <- gtzero/denom
+  }
+  #Next determine the percentage of samples that are greater than zero for each comparison.
+  output <- data.frame(matrix(nrow = treatments ^ 2,
+                              ncol = features + 1))
+  m <- 1
+  for (j in 1:treatments) {
+    for (k in 1:treatments) {
+      if(j != k){
+        output[m, 1] <- paste("treatment_", j, "_vs_treatment_", k, sep = "")
+        #Calculate number of samples for the denominator of percentage calculation
+        denom <- apply(
+          diffs[[j]][[k]],
+          2,
+          FUN = function(x) {
+            length(x)
+          }
+        )
+        #Calculate number of samples > 0
+        gtzero <-
+          apply(
+            diffs[[j]][[k]],
+            2,
+            FUN = function(x) {
+              length(which(x > 0))
+            }
+          )
+        #Save percentage to output
+        output[m, 2:length(output)] <- gtzero / denom
         m <- m + 1
       }
     }
-    names(output) <- c("comparison", names(countData)[2:dim(countData)[2]])
+  }
+  names(output) <-
+    c("comparison", names(countData)[2:dim(countData)[2]])
+  
+  #Remove empty rows in output. Doing this instead of constraining table size
+  #since it seems easier then calculating exactly how many rows are needed
+  #depending on treatment. This could be changed in the future.
+  output <- output[!is.na(output$comparison),]
+  
+  if(diffsamples == T){
+    return(list(certainty_of_diffs = output,
+                ppd_diffs = diffs))
+  }else{
     return(output)
   }
 }
