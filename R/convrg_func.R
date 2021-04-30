@@ -462,72 +462,37 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
 #' @export
 extract_point_estimate <- function(model_out, countData){
   
-  if(model_out@stan_args[[1]]$method == "sampling"){
-    pis <- rstan::extract(model_out, "pi")
-    treatments <- rapply(pis, dim, how="list")$pi[2]} 
-  else if(model_out@stan_args[[1]]$method == "variational"){
-      pis <- model_out@sim$samples[[1]][grep("pi",names(model_out@sim$samples[[1]]))]
-      #Identify treatment groups
-      treatments <- unique(gsub("pi\\.(\\d+)\\.\\d+", "\\1", names(pis)))
-  }  
+  pis <- rstan::extract(model_out, "pi")
+  treatments <- rapply(pis, dim, how="list")$pi[2]
+
   #Make names for treatment groups for convenience
   treats <- vector()
   for (i in 1:treatments) {
     treats[i] <- paste("treatment", i, sep = "_")
   }
-
-  #Extract point estimates for pis
-  #Use different methods to obtain estimates depending upon posterior estimation method.
-  if(model_out@stan_args[[1]]$method == "variational"){
-    #extract pi samples
-    out_pis <- model_out@sim$est$pi
-    colnames(out_pis) <- names(countData)[2:length(names(countData))]
-  }
-  if(model_out@stan_args[[1]]$method == "sampling"){
-    pis <- rstan::extract(model_out, "pi")
     out_pis <-
       data.frame(treats, apply(pis$pi[, , ], MARGIN = c(2, 3), FUN = mean))
-    colnames(out_pis) <-
-      c("treatment", names(countData)[2:dim(countData)[2]])
+  if(length(names(countData)[2:dim(countData)[2]]) + 1 != length(out_pis)){
+    print("ERROR: the length of the name vector from the count data does not match the length of modeled pi parameters. Check that the count data provided to this function are exactly those that were modeled.")
   }
+    
+    colnames(out_pis) <- c("treatments", names(countData)[2:dim(countData)[2]])
   
   #Catch ps only if they exist
   
   if( length(grep("^p[\\.[]", names(model_out@sim$samples[[1]]))) != 0 ){
-    #Extract point estimates for ps
-    #Note that, for now, we use the same extraction approach regardless of sampling method
-    #This could change though.
-    if(model_out@stan_args[[1]]$method == "variational"){
-      out_ps <-  model_out@sim$est$p
-      colnames(out_ps) <- names(countData)[2:dim(countData)[2]]
-    }
-    if(model_out@stan_args[[1]]$method == "sampling"){
       ps <- rstan::extract(model_out, "p")
       out_ps <- data.frame(countData[,1], apply(ps$p[, , ], MARGIN = c(2, 3), FUN = mean))
       colnames(out_ps) <-
         c("sample",  names(countData)[2:dim(countData)[2]])
     }
-  }
+  
   if(is.null(names(countData)[2:dim(countData)[2]]) | any(is.na(names(countData)[2:dim(countData)[2]]))){
     print("The names of the count data provided include NA or are NULL. If more informative names are desired for the output then the count matrix should have column names.")
   }
-  if(model_out@stan_args[[1]]$method == "variational"){
-    if(length(grep("^p\\.", names(model_out@sim$samples[[1]]))) != 0 & length(grep("^pi\\.", names(model_out@sim$samples[[1]]))) != 0){
-      return(list(
-        pointEstimates_p = out_ps,
-        pointEstimates_pi = out_pis)
-      )}else if(length(grep("^pi\\.", names(model_out@sim$samples[[1]]))) != 0 & length(grep("^p\\.", names(model_out@sim$samples[[1]]))) == 0){
-        return(list(
-          pointEstimates_pi = out_pis)
-        )
-      }else if(length(grep("^pi\\.", names(model_out@sim$samples[[1]]))) == 0 & length(grep("^p\\.", names(model_out@sim$samples[[1]]))) != 0){
-        return(list(
-          pointEstimates_p = out_ps)
-        )
-      }
-  }
-  if(model_out@stan_args[[1]]$method == "sampling"){
-    if(length(grep("^p\\[", names(model_out@sim$samples[[1]]))) != 0 & length(grep("^pi\\[", names(model_out@sim$samples[[1]]))) != 0){
+  
+  if(length(grep("^p\\[", names(model_out@sim$samples[[1]]))) != 0 & 
+     length(grep("^pi\\[", names(model_out@sim$samples[[1]]))) != 0){
       return(list(
         pointEstimates_p = out_ps,
         pointEstimates_pi = out_pis)
@@ -540,7 +505,6 @@ extract_point_estimate <- function(model_out, countData){
           pointEstimates_p = out_ps)
         )
       }
-  }
 }
 
 #' Extract quantiles of pi parameters
