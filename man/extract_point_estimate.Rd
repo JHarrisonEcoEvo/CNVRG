@@ -2,22 +2,20 @@
 % Please edit documentation in R/convrg_func.R
 \name{extract_point_estimate}
 \alias{extract_point_estimate}
-\title{Extract point estimates of pi parameters}
+\title{Extract point estimates of multinomial and Dirichlet parameters}
 \usage{
-extract_point_estimate(model_out, countData, treatments)
+extract_point_estimate(model_out, countData)
 }
 \arguments{
 \item{model_out}{Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI}
 
 \item{countData}{The count data modelled.}
-
-\item{treatments}{An integer describing how many treatment groups were modelled.}
 }
 \value{
-A dataframe specifying point estimates for each feature in each treatment group.
+A list of data frames of point estimates for model parameters.
 }
 \description{
-Takes the mean value of pi parameters for each feature and separately by treatment group.
+Provides the mean value of posterior probability distributions for parameters.
 }
 \examples{
 #simulate an OTU table
@@ -36,5 +34,5 @@ com_demo <- data.frame(sample_vec, com_demo)
 names(com_demo) <- c("sample", fornames)
 
 out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
-extract_point_estimate(model_out = out, countData = com_demo, treatments = 2)
+extract_point_estimate(model_out = out, countData = com_demo)
 }

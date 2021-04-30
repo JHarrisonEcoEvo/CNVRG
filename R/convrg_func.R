@@ -435,13 +435,12 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
   }
 }
 
-#' Extract point estimates of pi parameters
+#' Extract point estimates of multinomial and Dirichlet parameters
 #'
-#' Takes the mean value of pi parameters for each feature and separately by treatment group.
+#' Provides the mean value of posterior probability distributions for parameters.
 #' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
 #' @param countData The count data modelled.
-#' @param treatments An integer describing how many treatment groups were modelled.
-#' @return A dataframe specifying point estimates for each feature in each treatment group.
+#' @return A list of data frames of point estimates for model parameters.
 #' @examples
 #' #simulate an OTU table
 #' com_demo <-matrix(0, nrow = 10, ncol = 10)
@@ -459,10 +458,18 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
 #' names(com_demo) <- c("sample", fornames)
 #' 
 #' out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
-#' extract_point_estimate(model_out = out, countData = com_demo, treatments = 2)
+#' extract_point_estimate(model_out = out, countData = com_demo)
 #' @export
-extract_point_estimate <- function(model_out, countData, treatments){
+extract_point_estimate <- function(model_out, countData){
   
+  if(model_out@stan_args[[1]]$method == "sampling"){
+    pis <- rstan::extract(model_out, "pi")
+    treatments <- rapply(pis, dim, how="list")$pi[2]} 
+  else if(model_out@stan_args[[1]]$method == "variational"){
+      pis <- model_out@sim$samples[[1]][grep("pi",names(model_out@sim$samples[[1]]))]
+      #Identify treatment groups
+      treatments <- unique(gsub("pi\\.(\\d+)\\.\\d+", "\\1", names(pis)))
+  }  
   #Make names for treatment groups for convenience
   treats <- vector()
   for (i in 1:treatments) {
