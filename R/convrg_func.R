@@ -435,6 +435,64 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
   }
 }
 
+#' Plot diversity posterior probability distributions
+#'
+#' Simple function to plot density curves for diversity posteriors. This function takes
+#' the output of the diversity_calc function and a vector of colors of your choosing. 
+#' Look into the viridis package to make a nice color vector. For additionall functionality, 
+#' simply look inside this function to find the plotting code and modify it as you need.
+#' @param div Output of CNVRG's diversity_calc function.
+#' @param color_vec A vector of colors with an element for each sampling group.
+#' @return A plot.
+#' @examples
+#' #simulate an OTU table
+#' com_demo <-matrix(0, nrow = 10, ncol = 10)
+#' com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
+#' com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
+#' fornames <- NA
+#' for(i in 1:length(com_demo[1,])){
+#' fornames[i] <- paste("otu_", i, sep = "")
+#' }
+#' sample_vec <- NA
+#' for(i in 1:length(com_demo[,1])){
+#' sample_vec[i] <- paste("sample", i, sep = "_")
+#' }
+#' com_demo <- data.frame(sample_vec, com_demo)
+#' names(com_demo) <- c("sample", fornames)
+#' 
+#' out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
+#' div <- diversity_calc(model_out = out,params = c("pi","p"),
+#' countData = com_demo, entropy_measure = 'shannon')
+#' diversity_plotter(div)
+#' @export
+diversity_plotter <- function(div, color_vec = "black"){
+  #Extract the largest density value to make plot dimensions
+  densities <- NA
+  for(i in 1:length(div$entropy_pi)){
+    densities[i] <- max(density(div$entropy_pi[[i]])$y)
+  }
+  
+  plot(NULL, 
+       xlim = c(0, 1.1*max(unlist(div$entropy_pi))),
+       ylim = c(0, 1.1*max(densities)),
+       las = 2, 
+       ylab = "density",
+       xlab = "entropy",
+       frame.plot = F)
+  if(length(color_vec) !=length(div$entropy_pi)){
+    print("WARNING: The color vector that was passed in does not have the same number of elements as there were sampling groups.")
+    print("CNVRG will use red for plotting. Sorry if this isn't what you wanted!")
+    
+    for(i in 1:length(div$entropy_pi)){
+      lines(density(div$entropy_pi[[i]]), col = "red")
+    }
+  }
+  
+  for(i in 1:length(div$entropy_pi)){
+    lines(density(div$entropy_pi[[i]]), col = color_vec[i])
+  }
+}
+
 #' Extract point estimates of multinomial and Dirichlet parameters
 #'
 #' Provides the mean value of posterior probability distributions for parameters.
