@@ -438,7 +438,7 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
 #' Plot diversity posterior probability distributions
 #'
 #' Simple function to plot density curves for diversity posteriors. This function takes
-#' the output of the diversity_calc function and a vector of colors of your choosing. 
+#' the output of the diversity_calc function and a vector of colors of your choosing and any further arguments that could be passed to base plot. 
 #' Look into the viridis package to make a nice color vector. For additionall functionality, 
 #' simply look inside this function to find the plotting code and modify it as you need.
 #' @param div Output of CNVRG's diversity_calc function.
@@ -465,7 +465,14 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
 #' countData = com_demo, entropy_measure = 'shannon')
 #' diversity_plotter(div)
 #' @export
-diversity_plotter <- function(div, color_vec = "black"){
+diversity_plotter <- function(div, 
+                              color_vec = "black", 
+                              xlim = c(0, 1.1*max(unlist(div$entropy_pi))),
+                              ylim = c(0, 1.1*max(densities)),
+                              las = 2, 
+                              ylab = "density",
+                              xlab = "entropy",
+                              frame.plot = F, ...){
   #Extract the largest density value to make plot dimensions
   densities <- NA
   for(i in 1:length(div$entropy_pi)){
@@ -473,23 +480,24 @@ diversity_plotter <- function(div, color_vec = "black"){
   }
   
   plot(NULL, 
-       xlim = c(0, 1.1*max(unlist(div$entropy_pi))),
-       ylim = c(0, 1.1*max(densities)),
-       las = 2, 
-       ylab = "density",
-       xlab = "entropy",
-       frame.plot = F)
+       xlim = xlim,
+       ylim = ylim,
+       las = las, 
+       ylab = ylab,
+       xlab = xlab,
+       frame.plot = frame.plot,
+       ...)
   if(length(color_vec) !=length(div$entropy_pi)){
     print("WARNING: The color vector that was passed in does not have the same number of elements as there were sampling groups.")
     print("CNVRG will use red for plotting. Sorry if this isn't what you wanted!")
     
     for(i in 1:length(div$entropy_pi)){
-      lines(density(div$entropy_pi[[i]]), col = "red")
+      lines(density(div$entropy_pi[[i]]), col = "red", lwd = 1.5 )
     }
   }
   
   for(i in 1:length(div$entropy_pi)){
-    lines(density(div$entropy_pi[[i]]), col = color_vec[i])
+    lines(density(div$entropy_pi[[i]]), col = color_vec[i], lwd = 1.5)
   }
 }
 
