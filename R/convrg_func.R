@@ -436,13 +436,8 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
 #' Plot diversity posterior probability distributions
 #'
 #' Simple function to plot density curves for diversity posteriors. This function takes
-<<<<<<< HEAD
 #' the output of the diversity_calc function and a vector of colors of your choosing. 
-#' Look into the viridis package to make a nice color vector. For additional functionality, 
-=======
-#' the output of the diversity_calc function and a vector of colors of your choosing and any further arguments that could be passed to base plot. 
-#' Look into the viridis package to make a nice color vector. For additionall functionality, 
->>>>>>> 1ee164de5a4195d807ff372824decd631dde7297
+#' Look into the viridis package to make a nice color vector. For additional functionality,
 #' simply look inside this function to find the plotting code and modify it as you need.
 #' @param div Output of CNVRG's diversity_calc function.
 #' @param color_vec A vector of colors with an element for each sampling group.
