@@ -292,12 +292,13 @@ diff_abund <- function(model_out, countData, diffsamples = F){
 #'
 #' Calculate Shannon's or Simpson's entropies for each replicate while propagating uncertainty in relative abundance estimates through calculations.
 #'
-#' Takes as input either a fitted Stan oject from the cnvrg_HMC or cnvrg_VI functions, or a list that is the extracted pi values from one of those objects. 
-#' It may be desirable to extract pi values from a fitted model object and transform them, e.g., via division by an ISD, before calculating diversity entropies.
-#' So long as the input list of posterior samples follow the same format as they do within the fitted model objects, this function should perform as expected.
-#' As always, doublecheck the results to ensure the function has output reasonable values. 
+#' Takes as input either a fitted Stan oject from the cnvrg_HMC or cnvrg_VI functions, or a list that is the output of isd_transform. 
+#' As always, doublecheck the results to ensure the function has output reasonable values. Note that because there are no zero values 
+#' and all proportion estimates are non-zero there is a lot of information within the modelled data. Because diversity entropies
+#' are measures of information content, this means there will be a much higher entropy estimate for modelled data than the raw
+#' count data. However, patterns of variation in diversity should be similar among treatment groups for modelled and raw data. 
 #' 
-#' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
+#' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI or isd_transform
 #' @param countData Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.
 #' @param params Parameter for which to calculate diversity, can be 'p' or 'pi' or both (e.g., c("pi","p"))
 #' @param entropy_measure Diversity entropy to use, can be one of 'shannon' or 'simpson'
@@ -342,8 +343,6 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
         for(i in 1:treatments){
           entropy_pi[[i]] <- 1 / (vegan::diversity(pis$pi[,i,], index = entropy_measure))
         }
-      }else{
-        stop("It appears that you didn't choose either 'simpson' or 'shannon' for your entropy index.")
       }
     }else{
       if(entropy_measure == "shannon"){
@@ -354,27 +353,30 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
         for(i in 1:treatments){
           entropy_pi[[i]] <- vegan::diversity(pis$pi[,i,], index = entropy_measure)
         }
-      }else{
-        stop("It appears that you didn't choose either 'simpson' or 'shannon' for your entropy index.")
       }
-    } #FOR ALTERNATE LIST INPUT
+    } #FOR ALTERNATE LIST INPUT as output by isd_transform()
     }else{
       pis <- model_out
-      "Model input appears to be a list, not an Rstan fitted object."
+      print("Model input appears to be a list, not an Rstan fitted object. Presumably this is the output of isd_transform.")
+      
       #This pulls out the second element in the dimensions of pi, which is the number of treatments
-      treatments <- dim(pis)[2]
-      entropy_pi <- list()
+      treatments <- length(pis)
+      entropy_pi <- vector("list",treatments)
       if(equivalents == T){
         if(entropy_measure == "shannon"){
           for(i in 1:treatments){
-            entropy_pi[[i]] <- exp(vegan::diversity(pis[,i,], index = entropy_measure))
+            for(j in 1:length(pis[[1]][[1]])){
+              entropy_pi[[i]][[j]] <- exp(vegan::diversity(sapply(pis[[i]], "[[", j)
+                                   ,index = entropy_measure))
+            }
           }
         }else if (entropy_measure == "simpson"){
           for(i in 1:treatments){
-            entropy_pi[[i]] <- 1 / (vegan::diversity(pis[,i,], index = entropy_measure))
+            for(j in 1:length(pis[[1]][[1]])){
+              entropy_pi[[i]][j] <- 1 / (vegan::diversity(sapply(pis[[i]], "[[", j)
+                                                         ,index = entropy_measure))
+            }
           }
-        }else{
-          stop("It appears that you didn't choose either 'simpson' or 'shannon' for your entropy index.")
         }
       }else{
         if(entropy_measure == "shannon"){
@@ -385,8 +387,6 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
           for(i in 1:treatments){
             entropy_pi[[i]] <- vegan::diversity(pis[,i,], index = entropy_measure)
           }
-        }else{
-          stop("It appears that you didn't choose either 'simpson' or 'shannon' for your entropy index.")
         }
       }
     }
@@ -420,8 +420,6 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
         for(i in 1:reps){
           entropy_p[[i]] <- vegan::diversity(ps$p[,i,], index = entropy_measure)
         }
-      }else{
-        stop("It appears that you didn't choose either 'simpson' or 'shannon' for your entropy index.")
       }
     }
   }
@@ -439,7 +437,7 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
 #'
 #' Simple function to plot density curves for diversity posteriors. This function takes
 #' the output of the diversity_calc function and a vector of colors of your choosing. 
-#' Look into the viridis package to make a nice color vector. For additionall functionality, 
+#' Look into the viridis package to make a nice color vector. For additional functionality, 
 #' simply look inside this function to find the plotting code and modify it as you need.
 #' @param div Output of CNVRG's diversity_calc function.
 #' @param color_vec A vector of colors with an element for each sampling group.
@@ -653,7 +651,7 @@ indexer <- function(x){
 #' If an internal standard (ISD) has been added to samples such that the counts for that standard are representative of the same absolute abundance, then the ISD can be used to transform relative abundance data such that they are proportional to absolute abundances (Harrison et al. 2020). 
 #' This function performs this division while preserving uncertainty in relative abundance estimates of both the ISD and the other features present.
 #' 
-#' An index for the ISD must be provided. This should be the field index that corresponds with the ISD. Remember that the index should mirror what has been modelled.
+#' An index for the ISD must be provided. This should be the field index that corresponds with the ISD. Remember that the index should mirror what has been modelled. Also, note that this function subtracts one from this index because the modeled data have a non-integer sample field.
 #' If the wrong index is passed in, the output of this function will be incorrect, but there will not be a fatal error or warning.
 #' 
 #' A simple check that the correct index has been passed to the function is to examine the output and make sure that the field that should correspond with the ISD is one (signifying that the ISD was divided by itself).
@@ -691,7 +689,9 @@ isd_transform <- function(model_out, isd_index, countData, format = "samples"){
   if(exists("isd_index") == F){
     stop("An index for the ISD has not been provided.")
   }
-  isd_index <- isd_index - 1 #This is because the modelled p values are one fewer then the dimensions of the count data, because the count data had a sample name column.
+  isd_index <- isd_index - 1 
+  #This is because the modelled p values are one fewer then the dimensions of the count data, 
+  #because the count data had a sample name column.
   if(model_out@stan_args[[1]]$method == "sampling"){
     pis <- rstan::extract(model_out, "pi")
     treatments <- rapply(pis, dim, how="list")$pi[2]
