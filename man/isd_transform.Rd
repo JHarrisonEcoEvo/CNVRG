@@ -23,7 +23,7 @@ If an internal standard (ISD) has been added to samples such that the counts for
 This function performs this division while preserving uncertainty in relative abundance estimates of both the ISD and the other features present.
 }
 \details{
-An index for the ISD must be provided. This should be the field index that corresponds with the ISD. Remember that the index should mirror what has been modelled.
+An index for the ISD must be provided. This should be the field index that corresponds with the ISD. Remember that the index should mirror what has been modelled. Also, note that this function subtracts one from this index because the modeled data have a non-integer sample field.
 If the wrong index is passed in, the output of this function will be incorrect, but there will not be a fatal error or warning.
 
 A simple check that the correct index has been passed to the function is to examine the output and make sure that the field that should correspond with the ISD is one (signifying that the ISD was divided by itself).

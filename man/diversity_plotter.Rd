@@ -17,7 +17,7 @@ A plot.
 \description{
 Simple function to plot density curves for diversity posteriors. This function takes
 the output of the diversity_calc function and a vector of colors of your choosing.
-Look into the viridis package to make a nice color vector. For additionall functionality,
+Look into the viridis package to make a nice color vector. For additional functionality,
 simply look inside this function to find the plotting code and modify it as you need.
 }
 \examples{
