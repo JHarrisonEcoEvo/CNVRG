@@ -217,7 +217,11 @@ cnvrg_VI <- function(countData,
 #' diff_abund_test <- diff_abund(model_out = out, countData = com_demo)
 #' @export
 diff_abund <- function(model_out, countData, diffsamples = F){
-  pis <- rstan::extract(model_out, "pi")
+  if(class(model_out)=="stanfit"){
+    pis <- rstan::extract(model_out, "pi")
+  }else if(class(model_out)=="array"){
+    pis <- model_out
+  }
   #This pulls out the second element in the dimensions of pi, which is the number of treatments
   treatments <- rapply(pis, dim, how = "list")$pi[2]
   #This gives us number of features
@@ -731,9 +735,9 @@ isd_transform <- function(model_out, isd_index, countData, format = "samples"){
     k <- 1
     for(i in treatments){
       groupo <- pis[gsub("pi\\.(\\d+)\\.\\d+", "\\1", names(pis)) == i]
-      divisor <- groupo[gsub("pi\\.\\d+\\.(\\d+)", "\\1", names(groupo)) == as.character(isd_index)]
+      divisor <- groupo[[isd_index]]
       
-      out[[k]]  <- lapply(groupo, FUN = function(x){x/unlist(divisor)})
+      out[[k]]  <- lapply(groupo, FUN = function(x){x/divisor})
       #Sanity check
       # head(groupo[[2]]/unlist(divisor))
       # head(unlist(divisor))
