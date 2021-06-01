@@ -672,7 +672,7 @@ indexer <- function(x){
 #' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
 #' @param countData The count data modelled.
 #' @param isd_index The index for the field with information for the internal standard.
-#' @param format The output format. Can be either 'stan' or samples' or 'ml'. The former option outputs an object that has the same form as the output of rstan::extract() as applied to the fitted Stan output from the CNVRG modeling functions. "samples" outputs samples from the posterior probability distribution, the last option ("ml") outputs maximum likelihood estimates for each parameter.
+#' @param format The output format. Can be either 'or 'samples' or 'ml'. "samples" outputs samples from the posterior probability distribution, the last option ("ml") outputs maximum likelihood estimates for each parameter.
 #' @return A dataframe, or list, specifying either point estimates for each feature in each treatment group (if output format is 'ml') or samples from the posteriof (if output format is 'samples').
 #' @examples
 #' #simulate an OTU table
@@ -703,7 +703,7 @@ isd_transform <- function(model_out, isd_index, countData, format = "stan"){
   isd_index <- isd_index - 1 
   #This is because the modelled p values are one fewer then the dimensions of the count data, 
   #because the count data had a sample name column.
-  if(model_out@stan_args[[1]]$method == "sampling"){
+  #if(model_out@stan_args[[1]]$method == "sampling"){
     pis <- rstan::extract(model_out, "pi")
     treatments <- rapply(pis, dim, how="list")$pi[2]
     
@@ -725,46 +725,5 @@ isd_transform <- function(model_out, isd_index, countData, format = "stan"){
       
       names(out) <- c("treatment_group",names(countData)[2:length(names(countData))])
     }
-    #Convert to Stan format
-    if(format == "stan"){
-      this does notwork
-      newarray <- array(data = out,
-                        dim = c(
-                          #UGH, we have to resort to this nonsense to easily 
-                          #extract dimensions of array
-                          rapply(pis, dim, how="list")$pi[1],
-                          rapply(pis, dim, how="list")$pi[2],
-                          rapply(pis, dim, how="list")$pi[3]
-                                ))
-      
-    }
-  }
-  
-  if(model_out@stan_args[[1]]$method == "variational"){
-    pis <- model_out@sim$samples[[1]][grep("pi",names(model_out@sim$samples[[1]]))]
-    #Identify treatment groups
-    treatments <- unique(gsub("pi\\.(\\d+)\\.\\d+", "\\1", names(pis)))
-    
-    #Loop by treatment group and perform the division
-    out <- list()
-    k <- 1
-    for(i in treatments){
-      groupo <- pis[gsub("pi\\.(\\d+)\\.\\d+", "\\1", names(pis)) == i]
-      divisor <- groupo[[isd_index]]
-      
-      out[[k]]  <- lapply(groupo, FUN = function(x){x/divisor})
-      #Sanity check
-      # head(groupo[[2]]/unlist(divisor))
-      # head(unlist(divisor))
-      # head(groupo[[2]])
-      k <- k + 1
-    }
-    if(format == "ml"){
-      groupnms <- paste("treatment_group_",treatments, sep = "")
-      out <- lapply(out, sapply, mean)
-      out <- data.frame(groupnms, matrix(unlist(out), nrow=length(treatments), byrow=T))
-      names(out) <- c("treatment_group",names(countData)[2:length(names(countData))])
-    }
-  }
   return(out)
 }
