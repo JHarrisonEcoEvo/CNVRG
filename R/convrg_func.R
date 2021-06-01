@@ -669,7 +669,7 @@ indexer <- function(x){
 #' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
 #' @param countData The count data modelled.
 #' @param isd_index The index for the field with information for the internal standard.
-#' @param format The output format. Can be either 'samples' or 'ml'. The former option outputs samples from the posterior probability distribution, the latter outputs maximum likelihood estimates for each parameter.
+#' @param format The output format. Can be either 'stan' or samples' or 'ml'. The former option outputs an object that has the same form as the output of rstan::extract() as applied to the fitted Stan output from the CNVRG modeling functions. "samples" outputs samples from the posterior probability distribution, the last option ("ml") outputs maximum likelihood estimates for each parameter.
 #' @return A dataframe, or list, specifying either point estimates for each feature in each treatment group (if output format is 'ml') or samples from the posteriof (if output format is 'samples').
 #' @examples
 #' #simulate an OTU table
@@ -693,7 +693,7 @@ indexer <- function(x){
 #' transformed_data <- isd_transform(model_out = out, countData = com_demo,
 #' isd_index = 3, format = "ml")
 #' @export
-isd_transform <- function(model_out, isd_index, countData, format = "samples"){
+isd_transform <- function(model_out, isd_index, countData, format = "stan"){
   if(exists("isd_index") == F){
     stop("An index for the ISD has not been provided.")
   }
@@ -706,10 +706,12 @@ isd_transform <- function(model_out, isd_index, countData, format = "samples"){
     
     out <- pis
     
+    #Do division
     for(i in 1:treatments){
       #Recall the array goes samples, groups, features
       out$pi[,i,] <-  out$pi[,i,] / out$pi[,i,isd_index]
     }
+    #Convert to max. likelihood estimates of posteriors
     if(format == "ml"){
       groupnms <- NA
       for(i in 1:treatments){
@@ -719,6 +721,19 @@ isd_transform <- function(model_out, isd_index, countData, format = "samples"){
                         apply(out$pi[, , ], MARGIN = c(2, 3), FUN = mean))
       
       names(out) <- c("treatment_group",names(countData)[2:length(names(countData))])
+    }
+    #Convert to Stan format
+    if(format == "stan"){
+      this does notwork
+      newarray <- array(data = out,
+                        dim = c(
+                          #UGH, we have to resort to this nonsense to easily 
+                          #extract dimensions of array
+                          rapply(pis, dim, how="list")$pi[1],
+                          rapply(pis, dim, how="list")$pi[2],
+                          rapply(pis, dim, how="list")$pi[3]
+                                ))
+      
     }
   }
   
