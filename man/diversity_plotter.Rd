@@ -4,7 +4,17 @@
 \alias{diversity_plotter}
 \title{Plot diversity posterior probability distributions}
 \usage{
-diversity_plotter(div, color_vec = "black")
+diversity_plotter(
+  div,
+  color_vec = "black",
+  xlim = c(0, 1.1 * max(unlist(div$entropy_pi))),
+  ylim = c(0, 1.1 * max(densities)),
+  las = 2,
+  ylab = "density",
+  xlab = "entropy",
+  frame.plot = F,
+  ...
+)
 }
 \arguments{
 \item{div}{Output of CNVRG's diversity_calc function.}

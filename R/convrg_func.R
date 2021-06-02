@@ -296,7 +296,7 @@ diff_abund <- function(model_out, countData, diffsamples = F){
 #'
 #' Calculate Shannon's or Simpson's entropies for each replicate while propagating uncertainty in relative abundance estimates through calculations.
 #'
-#' Takes as input either a fitted Stan oject from the cnvrg_HMC or cnvrg_VI functions, or a list that is the output of isd_transform. 
+#' Takes as input either a fitted Stan oject from the cnvrg_HMC or cnvrg_VI functions, or the output of isd_transform. 
 #' As always, doublecheck the results to ensure the function has output reasonable values. Note that because there are no zero values 
 #' and all proportion estimates are non-zero there is a lot of information within the modelled data. Because diversity entropies
 #' are measures of information content, this means there will be a much higher entropy estimate for modelled data than the raw
@@ -338,9 +338,11 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
     #This pulls out the second element in the dimensions of pi, which is the number of treatments
     treatments <- rapply(pis, dim, how="list")$pi[2]
     entropy_pi <- list()
+
     if(equivalents == T){
       if(entropy_measure == "shannon"){
         for(i in 1:treatments){
+          #Note on June 2, I checked that this method of indexing worked. It do
           entropy_pi[[i]] <- exp(vegan::diversity(pis$pi[,i,], index = entropy_measure))
         }
       }else if (entropy_measure == "simpson"){
@@ -384,6 +386,8 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
     }else if(class(model_out) == "array"){
       print("Model input appears to be a array, not an Rstan fitted object. This may be ok, but check output of this function")
       entropy_pi <- list()
+      treatments <- rapply(model_out, dim, how="list")$pi[2]
+      
       if(equivalents == T){
         if(entropy_measure == "shannon"){
           for(i in 1:treatments){
@@ -726,4 +730,83 @@ isd_transform <- function(model_out, isd_index, countData, format = "stan"){
       names(out) <- c("treatment_group",names(countData)[2:length(names(countData))])
     }
   return(out)
+}
+
+
+#' Calculate richness estimates for each replicate
+#'
+#' Calculate richness for each replicate while propagating uncertainty in relative abundance estimates through calculations.
+#'
+#' Takes as input either a fitted Stan oject from the cnvrg_HMC or cnvrg_VI functions, or the output of isd_transform. 
+#' As always, doublecheck the results to ensure the function has output reasonable values. This function takes the output of 
+#' the Dirichlet or multinomial parameters and counts however many parameters exceed some threshold (for each sample from the posterior).
+#' The choice of threshold is arbitrary and made by the user. Try a few values for the threshold and see how the patterns
+#' in richness shift. This is akin to rarefying one's count data to different levels of observation effort. 
+#' 
+#' NOTE: richness is a very fraught metric with sequencing data because the data are compositional. An extremely abundant
+#' taxon could dominate the sequencer output causing richness to appear to have dropped when, in fact, it had not. Therefore, 
+#' richness estimates should be approached cautiously and the absolute value of the richness estimate should be regarded as nearly
+#' meaningless. Instead, richness should only be used in a relative sense, to compare among samples that have relatively similar
+#' rank-abundance profiles and that were processed in the same way and that had similar sequencing depth.
+#' 
+#' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI or isd_transform
+#' @param countData Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields.
+#' @param params Parameter for which to calculate richness, can be 'p' or 'pi' or both (e.g., c("pi","p"))
+#' @param threshold Threshold to use for calculating richness.
+#' @return Posterior probability distribution of richness estimates for each parameter.
+#' @examples
+#' #simulate an OTU table
+#' com_demo <-matrix(0, nrow = 10, ncol = 10)
+#' com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
+#' com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
+#' fornames <- NA
+#' for(i in 1:length(com_demo[1,])){
+#' fornames[i] <- paste("otu_", i, sep = "")
+#' }
+#' sample_vec <- NA
+#' for(i in 1:length(com_demo[,1])){
+#' sample_vec[i] <- paste("sample", i, sep = "_")
+#' }
+#' com_demo <- data.frame(sample_vec, com_demo)
+#' names(com_demo) <- c("sample", fornames)
+#' 
+#' out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
+#' rich <- rich_calc(model_out = out,params = c("pi","p"),
+#' countData = com_demo, threshold = 0.1)
+#' @export
+rich_calc <- function(model_out, countData, params = "pi", threshold = 0.01){
+  if(any(params %in% c("pi","p")) == F){
+    stop("'params' must be specified and be either p or pi.")
+  }
+  if("pi" %in% params){
+    if(class(model_out) == "stanfit"){
+      pis <- rstan::extract(model_out, "pi")
+    }else if(class(model_out) == "array"){
+      pis <- model_out
+    }
+      rich_pi <- apply(pis$pi, MARGIN = c(1,2), 
+                       FUN = function(x){length(which(x > threshold))})
+      colnames(rich_pi) <- paste("treatment", seq(1, treatments), sep = "_")
+      rownames(rich_pi) <- paste("ppd_sample", seq(1, samples), sep = "_")
+    }
+  if("p" %in% params){
+    if(class(model_out) == "stanfit"){
+      ps <- rstan::extract(model_out, "p")
+    }else if(class(model_out) == "array"){
+      ps <- model_out
+    }
+    rich_p <- apply(ps$p, MARGIN = c(1,2), 
+                     FUN = function(x){length(which(x > threshold))})
+    names(rich_p) <- countData[,1]
+    rownames(rich_p) <- paste("ppd_sample", seq(1, samples), sep = "_")
+  }
+  
+  if(any("p" %in% params) & any("pi" %in% params)){
+    return(list(rich_pi = rich_pi,
+                rich_p = rich_p))
+  }else if (any(params %in% "pi")==F & any(params %in% "p")==T){
+    return(list(rich_p = rich_p))
+  }else if (any(params %in% "p")==F & any(params %in% "pi")==T){
+    return(list(rich_pi = rich_pi))
+  }
 }

@@ -4,7 +4,7 @@
 \alias{isd_transform}
 \title{Transform data into estimates of absolute abundances using an ISD}
 \usage{
-isd_transform(model_out, isd_index, countData, format = "samples")
+isd_transform(model_out, isd_index, countData, format = "stan")
 }
 \arguments{
 \item{model_out}{Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI}
@@ -13,7 +13,7 @@ isd_transform(model_out, isd_index, countData, format = "samples")
 
 \item{countData}{The count data modelled.}
 
-\item{format}{The output format. Can be either 'samples' or 'ml'. The former option outputs samples from the posterior probability distribution, the latter outputs maximum likelihood estimates for each parameter.}
+\item{format}{The output format. Can be either 'or 'samples' or 'ml'. "samples" outputs samples from the posterior probability distribution, the last option ("ml") outputs maximum likelihood estimates for each parameter.}
 }
 \value{
 A dataframe, or list, specifying either point estimates for each feature in each treatment group (if output format is 'ml') or samples from the posteriof (if output format is 'samples').

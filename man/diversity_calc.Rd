@@ -30,7 +30,7 @@ A list that has samples from posterior distributions of entropy metrics
 Calculate Shannon's or Simpson's entropies for each replicate while propagating uncertainty in relative abundance estimates through calculations.
 }
 \details{
-Takes as input either a fitted Stan oject from the cnvrg_HMC or cnvrg_VI functions, or a list that is the output of isd_transform.
+Takes as input either a fitted Stan oject from the cnvrg_HMC or cnvrg_VI functions, or the output of isd_transform.
 As always, doublecheck the results to ensure the function has output reasonable values. Note that because there are no zero values
 and all proportion estimates are non-zero there is a lot of information within the modelled data. Because diversity entropies
 are measures of information content, this means there will be a much higher entropy estimate for modelled data than the raw
