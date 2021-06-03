@@ -386,7 +386,7 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
     }else if(class(model_out) == "array"){
       print("Model input appears to be a array, not an Rstan fitted object. This may be ok, but check output of this function")
       entropy_pi <- list()
-      treatments <- rapply(model_out, dim, how="list")$pi[2]
+      treatments <- dim(model_out)[2]
       
       if(equivalents == T){
         if(entropy_measure == "shannon"){
@@ -407,7 +407,9 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
   }
   if("p" %in% params){
     if(class(model_out) != "stanfit"){
-     stop("ERROR: p parameters can not be processed for objects that are not of class 'stanfit'. If you want to calculate diversity for p parameters, then pass in the Stan Object. If you want to calculate diversity for p parameters that are not in a stanfit objec, such as those that have been estimated via maximum likelihood, it is better to use the standard vegan 'diversity' function.") 
+     stop("ERROR: p parameters can not be processed for objects that are not of class 'stanfit'. 
+          If you want to calculate diversity for p parameters that are not in a stanfit object, 
+          such as those that have been estimated via extract_point_estimates(), it is better to use the standard vegan 'diversity' function.") 
     }
     ps <- rstan::extract(model_out, "p")
     reps <- rapply(ps, dim, how="list")$p[2]
@@ -511,6 +513,7 @@ diversity_plotter <- function(div,
 #' Provides the mean value of posterior probability distributions for parameters.
 #' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
 #' @param countData The count data modelled.
+#' @param params Parameters to be extracted, either pi or p
 #' @return A list of data frames of point estimates for model parameters.
 #' @examples
 #' #simulate an OTU table
@@ -531,7 +534,7 @@ diversity_plotter <- function(div,
 #' out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
 #' extract_point_estimate(model_out = out, countData = com_demo)
 #' @export
-extract_point_estimate <- function(model_out, countData){
+extract_point_estimate <- function(model_out, countData, params = "pi"){
   
   pis <- rstan::extract(model_out, "pi")
   treatments <- rapply(pis, dim, how="list")$pi[2]
@@ -562,16 +565,16 @@ extract_point_estimate <- function(model_out, countData){
     print("The names of the count data provided include NA or are NULL. If more informative names are desired for the output then the count matrix should have column names.")
   }
   
-  if(length(grep("^p\\[", names(model_out@sim$samples[[1]]))) != 0 & 
-     length(grep("^pi\\[", names(model_out@sim$samples[[1]]))) != 0){
+  if(any(params == "pi") & 
+     any(params == "p")){
       return(list(
         pointEstimates_p = out_ps,
         pointEstimates_pi = out_pis)
-      )}else if(length(grep("^pi\\[", names(model_out@sim$samples[[1]]))) != 0 & length(grep("^p\\[", names(model_out@sim$samples[[1]]))) == 0){
+      )}else if(any(params == "pi")){
         return(list(
           pointEstimates_pi = out_pis)
         )
-      }else if(length(grep("^pi\\[", names(model_out@sim$samples[[1]]))) == 0 & length(grep("^p\\[", names(model_out@sim$samples[[1]]))) != 0){
+      }else if(any(params == "p")){
         return(list(
           pointEstimates_p = out_ps)
         )
@@ -743,11 +746,12 @@ isd_transform <- function(model_out, isd_index, countData, format = "stan"){
 #' The choice of threshold is arbitrary and made by the user. Try a few values for the threshold and see how the patterns
 #' in richness shift. This is akin to rarefying one's count data to different levels of observation effort. 
 #' 
-#' NOTE: richness is a very fraught metric with sequencing data because the data are compositional. An extremely abundant
-#' taxon could dominate the sequencer output causing richness to appear to have dropped when, in fact, it had not. Therefore, 
+#' NOTE: richness is a very fraught metric with sequencing data because the data are compositional and there are is a daunting array of biases influencing measurements.
+#' For example, an extremely abundant taxon could dominate the sequencer output causing richness to appear to have dropped when, in fact, it had not. Therefore, 
 #' richness estimates should be approached cautiously and the absolute value of the richness estimate should be regarded as nearly
 #' meaningless. Instead, richness should only be used in a relative sense, to compare among samples that have relatively similar
-#' rank-abundance profiles and that were processed in the same way and that had similar sequencing depth.
+#' rank-abundance profiles and that were processed in the same way and that had similar sequencing depth. Even then richness is of limited value.
+#' Consider examining rank-abundance profiles instead or focusing on shifts in the relative abundance of particular taxa.
 #' 
 #' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI or isd_transform
 #' @param countData Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields.
