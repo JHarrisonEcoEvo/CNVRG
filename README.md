@@ -1,6 +1,6 @@
 # CNVRG
 
-A package to provide a user-friendly wrapper for 'RStan' to implement Dirichlet-multinomial modeling of relative abundance count data. For vignette information see below.
+A package to provide a user-friendly wrapper for 'RStan' to implement Dirichlet-multinomial modeling of count data. For vignette information see below.
 
 This package is managed by Joshua Harrison.
 
@@ -11,6 +11,9 @@ To install from source. Download repo and unzip it then use the following comman
 Change the path to the 'CNVRG' directory as appropriate. 
 
 install.packages("./CNVRG/", repos = NULL, type = "source")
+
+Alternatively, one can download and install from GitHub using devtools like so: 
+devtools::install_github("https://github.com/JHarrisonEcoEvo/CNVRG")
 
 VIGNETTE
 
