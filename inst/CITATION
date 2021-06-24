@@ -16,7 +16,7 @@ bibentry("Manual",
       person(given = "C. Alex",
            family = "Buerkle",
            role = "aut",
-           comment = c(ORCID = "0000-0003-4222-8858")))),
+           comment = c(ORCID = "0000-0003-4222-8858"))),
          address      = "Laramie, Wyoming, U.S.A.",
          year         = version$year,
          url          = "https://github.com/JHarrisonEcoEvo/CNVRG",
@@ -34,4 +34,4 @@ bibentry("Manual",
           "please cite it when using it for data analysis.",
 	"Also, please cite Stan, Rstan, and our paper in Molecular Ecology Resources (DOI: https://doi.org/10.1111/1755-0998.13128).",
 	"Thanks!"
-	)
+	))
