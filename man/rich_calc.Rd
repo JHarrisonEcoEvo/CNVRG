@@ -28,11 +28,12 @@ the Dirichlet or multinomial parameters and counts however many parameters excee
 The choice of threshold is arbitrary and made by the user. Try a few values for the threshold and see how the patterns
 in richness shift. This is akin to rarefying one's count data to different levels of observation effort.
 
-NOTE: richness is a very fraught metric with sequencing data because the data are compositional. An extremely abundant
-taxon could dominate the sequencer output causing richness to appear to have dropped when, in fact, it had not. Therefore,
+NOTE: richness is a very fraught metric with sequencing data because the data are compositional and there are is a daunting array of biases influencing measurements.
+For example, an extremely abundant taxon could dominate the sequencer output causing richness to appear to have dropped when, in fact, it had not. Therefore,
 richness estimates should be approached cautiously and the absolute value of the richness estimate should be regarded as nearly
 meaningless. Instead, richness should only be used in a relative sense, to compare among samples that have relatively similar
-rank-abundance profiles and that were processed in the same way and that had similar sequencing depth.
+rank-abundance profiles and that were processed in the same way and that had similar sequencing depth. Even then richness is of limited value.
+Consider examining rank-abundance profiles instead or focusing on shifts in the relative abundance of particular taxa.
 }
 \examples{
 #simulate an OTU table
