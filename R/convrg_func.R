@@ -187,16 +187,20 @@ cnvrg_VI <- function(countData,
 
 #' Calculate features with different abundances between treatment groups
 #'
-#' This function determines which features within the matrix, be they taxa or molecules, differ in relative abundance among treatment groups.
+#' This function determines which features within the matrix that was modeled differ in relative abundance among treatment groups.
 #' Pass in a model object, with samples for pi parameters.
 #' This function only works for pi parameters.
 #' 
-#' The output of this function gives the proportion of samples that were greater than zero after subtracting two posterior distributions. Therefore, values that are very large or very small denote a high certainty that the distributions subtracted differ. 
-#' If desired, the posterior probability distribution of differences can also be output, using the diffsamples argument.
+#' The output of this function gives the proportion of samples that were greater than zero after subtracting the two relevant posterior distributions. Therefore, values that are very large or very small denote a high certainty that the distributions subtracted differ.
+#' If this concept is not clear, then read Harrison et al. 2020 "Dirichlet‐multinomial modelling outperforms alternatives for analysis of microbiome and other ecological count data" in Molecular Ecology Resources. 
+#' For a simple explanation, see this video: https://use.vg/OSVhFJ
+#' 
+#' The posterior probability distribution of differences is also output. These samples can be useful for plotting or other downstream analyses.
+#' Finally, a list of data frames describing the features that differed among treatment comparisons is output, with the probability of differences and the magnitude of those differences (the effect size) shown. 
 #' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
 #' @param countData Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.
-#' @param diffsamples Provide samples from the posterior probability distribution of differences. 
-#' @return A dataframe with the first field denoting the treatment comparison (e.g., treatment 1 vs. 2) and subsequent fields stating the proportion of samples from the posterior that were greater than zero. Note that each treatment group is compared to all other groups, which leads to some redundancy in output. If diffsamples is set to T then samples from the posterior probability distribution of the differences is also output and the output is a two element list.
+#' @param prob_threshold Probability threshold, below which it is considered that features had a high probability of differing between groups. Default is 0.05.
+#' @return A dataframe with the first field denoting the treatment comparison (e.g., treatment 1 vs. 2) and subsequent fields stating the proportion of samples from the posterior that were greater than zero (called "certainty of diffs"). Note that each treatment group is compared to all other groups, which leads to some redundancy in output. A list, called ppd_diffs, holding samples from the posterior probability distribution of the differences is also output. Finally, a list of dataframes describing results for only those features with a high probability of differing is output (this list is named: features_that_differed).
 #' @examples
 #' #simulate an OTU table
 #' com_demo <-matrix(0, nrow = 10, ncol = 10)
@@ -216,7 +220,7 @@ cnvrg_VI <- function(countData,
 #' out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
 #' diff_abund_test <- diff_abund(model_out = out, countData = com_demo)
 #' @export
-diff_abund <- function(model_out, countData, diffsamples = F){
+diff_abund <- function(model_out, countData, prob_threshold = 0.05){
   if(class(model_out)=="stanfit"){
     pis <- rstan::extract(model_out, "pi")
   }else if(class(model_out)=="array"){
@@ -248,6 +252,8 @@ diff_abund <- function(model_out, countData, diffsamples = F){
   #Next determine the percentage of samples that are greater than zero for each comparison.
   output <- data.frame(matrix(nrow = treatments ^ 2,
                               ncol = features + 1))
+  names(output) <-
+    c("comparison", names(countData)[2:length(countData)])
   m <- 1
   for (j in 1:treatments) {
     for (k in 1:treatments) {
@@ -270,26 +276,55 @@ diff_abund <- function(model_out, countData, diffsamples = F){
               length(which(x > 0))
             }
           )
+        #effect size
+        effect <-
+          apply(
+            diffs[[j]][[k]],
+            2,
+            FUN = mean)
+        names(effect) <- names(output)[2:length(output)]
         #Save percentage to output
         output[m, 2:length(output)] <- gtzero / denom
         m <- m + 1
       }
     }
   }
-  names(output) <-
-    c("comparison", names(countData)[2:dim(countData)[2]])
+  print("Names being added to the output file correspond to count data as entered, minus the initial sample column.")
+  print("DOUBLECHECK that these names match your expectations, or you will be led astray.")
+  print("Look at the source code for this function if you are not certain what is happening.")
   
   #Remove empty rows in output. Doing this instead of constraining table size
   #since it seems easier then calculating exactly how many rows are needed
   #depending on treatment. This could be changed in the future.
   output <- output[!is.na(output$comparison),]
   
-  if(diffsamples == T){
+  #Determine those features that differed between treatment comparisons. 
+  certain_diff_features_list <- list()
+  for(m in 1:nrow(output)){
+    selected_comparison_output <- output[m,]
+    
+    probs <- NA
+    for(i in 2:length(selected_comparison_output)){
+      if(selected_comparison_output[1,i] > .5){
+        probs[i] <- 1 - selected_comparison_output[1,i]
+      }else{
+        probs[i] <- selected_comparison_output[1,i]
+      }
+    }
+    certain_diff_features <- names(output)[probs <= prob_threshold]
+    effectSizes_cert_differences <- effect[names(effect) %in% certain_diff_features]
+    certain_diff_features <- data.frame(cbind(certain_diff_features, probs))
+    certain_diff_features <- certain_diff_features[-is.na(certain_diff_features),]
+    names(certain_diff_features) <- c("feature_that_differed", "probability_of_difference")
+    certain_diff_features$effect_size <- 
+      effectSizes_cert_differences[names(effectSizes_cert_differences) %in% certain_diff_features$feature_that_differed]
+    certain_diff_features_list[[m]] <- certain_diff_features
+    }
+    names(certain_diff_features_list) <- output[,1]
+    
     return(list(certainty_of_diffs = output,
-                ppd_diffs = diffs))
-  }else{
-    return(output)
-  }
+                ppd_diffs = diffs,
+                features_that_differed = certain_diff_features_list))
 }
 
 #' Calculate diversity entropies for each replicate

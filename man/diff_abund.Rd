@@ -4,26 +4,30 @@
 \alias{diff_abund}
 \title{Calculate features with different abundances between treatment groups}
 \usage{
-diff_abund(model_out, countData, diffsamples = F)
+diff_abund(model_out, countData, prob_threshold = 0.05)
 }
 \arguments{
 \item{model_out}{Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI}
 
 \item{countData}{Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.}
 
-\item{diffsamples}{Provide samples from the posterior probability distribution of differences.}
+\item{prob_threshold}{Probability threshold, below which it is considered that features had a high probability of differing between groups. Default is 0.05.}
 }
 \value{
-A dataframe with the first field denoting the treatment comparison (e.g., treatment 1 vs. 2) and subsequent fields stating the proportion of samples from the posterior that were greater than zero. Note that each treatment group is compared to all other groups, which leads to some redundancy in output. If diffsamples is set to T then samples from the posterior probability distribution of the differences is also output and the output is a two element list.
+A dataframe with the first field denoting the treatment comparison (e.g., treatment 1 vs. 2) and subsequent fields stating the proportion of samples from the posterior that were greater than zero (called "certainty of diffs"). Note that each treatment group is compared to all other groups, which leads to some redundancy in output. A list, called ppd_diffs, holding samples from the posterior probability distribution of the differences is also output. Finally, a list of dataframes describing results for only those features with a high probability of differing is output (this list is named: features_that_differed).
 }
 \description{
-This function determines which features within the matrix, be they taxa or molecules, differ in relative abundance among treatment groups.
+This function determines which features within the matrix that was modeled differ in relative abundance among treatment groups.
 Pass in a model object, with samples for pi parameters.
 This function only works for pi parameters.
 }
 \details{
-The output of this function gives the proportion of samples that were greater than zero after subtracting two posterior distributions. Therefore, values that are very large or very small denote a high certainty that the distributions subtracted differ.
-If desired, the posterior probability distribution of differences can also be output, using the diffsamples argument.
+The output of this function gives the proportion of samples that were greater than zero after subtracting the two relevant posterior distributions. Therefore, values that are very large or very small denote a high certainty that the distributions subtracted differ.
+If this concept is not clear, then read Harrison et al. 2020 "Dirichlet‐multinomial modelling outperforms alternatives for analysis of microbiome and other ecological count data" in Molecular Ecology Resources.
+For a simple explanation, see this video: https://use.vg/OSVhFJ
+
+The posterior probability distribution of differences is also output. These samples can be useful for plotting or other downstream analyses.
+Finally, a list of data frames describing the features that differed among treatment comparisons is output, with the probability of differences and the magnitude of those differences (the effect size) shown.
 }
 \examples{
 #simulate an OTU table
