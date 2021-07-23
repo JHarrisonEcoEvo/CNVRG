@@ -313,7 +313,7 @@ diff_abund <- function(model_out, countData, prob_threshold = 0.05){
     }
     certain_diff_features <- names(output)[probs <= prob_threshold]
     effectSizes_cert_differences <- effect[names(effect) %in% certain_diff_features]
-    certain_diff_features <- data.frame(cbind(certain_diff_features, probs))
+    certain_diff_features <- data.frame(cbind(certain_diff_features, probs[probs <= prob_threshold]))
     certain_diff_features <- certain_diff_features[-is.na(certain_diff_features),]
     names(certain_diff_features) <- c("feature_that_differed", "probability_of_difference")
     certain_diff_features$effect_size <- 
