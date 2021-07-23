@@ -223,17 +223,20 @@ cnvrg_VI <- function(countData,
 diff_abund <- function(model_out, countData, prob_threshold = 0.05){
   if(class(model_out)=="stanfit"){
     pis <- rstan::extract(model_out, "pi")
-  }else if(class(model_out)=="array"){
-    pis <- model_out
+    #This pulls out the second element in the dimensions of pi, which is the number of treatments
+    treatments <- rapply(pis, dim, how = "list")$pi[2]
+    #This gives us number of features
+    features <- rapply(pis, dim, how = "list")$pi[3]
+  }else if(class(model_out)=="list"){
+    pis <- model_out$pi
+    treatments <- dim(pis)[2]
+    features <- dim(pis)[3]
   }
-  #This pulls out the second element in the dimensions of pi, which is the number of treatments
-  treatments <- rapply(pis, dim, how = "list")$pi[2]
-  #This gives us number of features
-  features <- rapply(pis, dim, how = "list")$pi[3]
-  
+ 
   if (treatments == 1) {
     stop(
-      "There is only one treatment group.
+      "There is only one treatment group.\n
+      Can't compare relative abundances across groups with only one group!\n
       Is a list of pi parameter samples being passed in? See the vignette."
     )
   }
@@ -242,11 +245,19 @@ diff_abund <- function(model_out, countData, prob_threshold = 0.05){
   for (i in 1:treatments) {
     for (j in 1:treatments) {
       if(i != j){
-        diffs[[i]][[j]] <- pis[[1]][, i, ] - pis[[1]][, j, ]
+        if(class(model_out)=="stanfit"){
+          diffs[[i]][[j]] <- pis[[1]][, i, ] - pis[[1]][, j, ]
+        }else if(class(model_out)=="list"){
+          diffs[[i]][[j]] <- pis[, i, ] - pis[, j, ]
+        }
       }
       #Sanity check
-      # pis[[1]][1:5,1,1:5] -
-      # pis[[1]][1:5,2,1:5]
+       # pis[[1]][1:5,1,1:5] -
+       # pis[[1]][1:5,2,1:5]
+       # 
+       # pis[1:5,1,1:5]; pis[1:5,2,1:5]
+       # pis[1:5,1,1:5] -
+       #   pis[1:5,2,1:5]
     }
   }
   #Next determine the percentage of samples that are greater than zero for each comparison.
@@ -709,12 +720,12 @@ indexer <- function(x){
 #' 
 #' A simple check that the correct index has been passed to the function is to examine the output and make sure that the field that should correspond with the ISD is one (signifying that the ISD was divided by itself).
 #' 
-#' Output format can either be maximum likelihood estimates of each pi parameter or the transformed samples from the posterior distribution for that parameter. The maximum likelihood estimate is simply the mean of the posterior distribution.
+#' Output format can either as means of the samples for each pi parameter or the transformed samples from the posterior distribution for that parameter.
 #' Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources.
 #' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
 #' @param countData The count data modelled.
 #' @param isd_index The index for the field with information for the internal standard.
-#' @param format The output format. Can be either 'or 'samples' or 'ml'. "samples" outputs samples from the posterior probability distribution, the last option ("ml") outputs maximum likelihood estimates for each parameter.
+#' @param format The output format. Can be either 'or 'samples' or 'ml'. "samples" outputs samples from the posterior probability distribution, the last option ("ml") outputs the mean of posterior samples for each parameter.
 #' @return A dataframe, or list, specifying either point estimates for each feature in each treatment group (if output format is 'ml') or samples from the posteriof (if output format is 'samples').
 #' @examples
 #' #simulate an OTU table
