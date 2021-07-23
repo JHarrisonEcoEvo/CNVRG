@@ -27,7 +27,7 @@ If this concept is not clear, then read Harrison et al. 2020 "Dirichlet‐multin
 For a simple explanation, see this video: https://use.vg/OSVhFJ
 
 The posterior probability distribution of differences is also output. These samples can be useful for plotting or other downstream analyses.
-Finally, a list of data frames describing the features that differed among treatment comparisons is output, with the probability of differences and the magnitude of those differences (the effect size) shown.
+Finally, a list of data frames describing the features that differed among treatment comparisons is output, with the probability of differences and the magnitude of those differences (the effect size) included.
 }
 \examples{
 #simulate an OTU table

@@ -196,7 +196,7 @@ cnvrg_VI <- function(countData,
 #' For a simple explanation, see this video: https://use.vg/OSVhFJ
 #' 
 #' The posterior probability distribution of differences is also output. These samples can be useful for plotting or other downstream analyses.
-#' Finally, a list of data frames describing the features that differed among treatment comparisons is output, with the probability of differences and the magnitude of those differences (the effect size) shown. 
+#' Finally, a list of data frames describing the features that differed among treatment comparisons is output, with the probability of differences and the magnitude of those differences (the effect size) included. 
 #' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
 #' @param countData Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.
 #' @param prob_threshold Probability threshold, below which it is considered that features had a high probability of differing between groups. Default is 0.05.
