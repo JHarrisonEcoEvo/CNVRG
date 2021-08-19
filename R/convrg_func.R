@@ -265,19 +265,24 @@ diff_abund <- function(model_out, countData, prob_threshold = 0.05){
                               ncol = features + 1))
   names(output) <-
     c("comparison", names(countData)[2:length(countData)])
+  
+  #Make a dataframe for effect sizes:
+  effects <- data.frame(matrix(nrow = treatments ^ 2,
+                              ncol = features + 1))
+  names(effects) <-
+    c("comparison", names(countData)[2:length(countData)])
+  
   m <- 1
+  
   for (j in 1:treatments) {
     for (k in 1:treatments) {
       if(j != k){
         output[m, 1] <- paste("treatment_", j, "_vs_treatment_", k, sep = "")
+        effects[m, 1] <- paste("treatment_", j, "_vs_treatment_", k, sep = "")
+        
         #Calculate number of samples for the denominator of percentage calculation
-        denom <- apply(
-          diffs[[j]][[k]],
-          2,
-          FUN = function(x) {
-            length(x)
-          }
-        )
+        denom <- dim(diffs[[j]][[k]])[1]
+        
         #Calculate number of samples > 0
         gtzero <-
           apply(
@@ -288,12 +293,12 @@ diff_abund <- function(model_out, countData, prob_threshold = 0.05){
             }
           )
         #effect size
-        effect <-
+        effects[m,2:length(effects)] <-
           apply(
             diffs[[j]][[k]],
             2,
             FUN = mean)
-        names(effect) <- names(output)[2:length(output)]
+        
         #Save percentage to output
         output[m, 2:length(output)] <- gtzero / denom
         m <- m + 1
@@ -322,15 +327,29 @@ diff_abund <- function(model_out, countData, prob_threshold = 0.05){
         probs[i] <- selected_comparison_output[1,i]
       }
     }
+    
     certain_diff_features <- names(output)[probs <= prob_threshold]
-    effectSizes_cert_differences <- effect[names(effect) %in% certain_diff_features]
-    certain_diff_features <- data.frame(cbind(certain_diff_features, probs[probs <= prob_threshold]))
+    effectSizes_cert_differences <- effects[m, names(effects) %in% certain_diff_features]
+    
+    certain_diff_features <- data.frame(cbind(certain_diff_features, 
+                                              probs[probs <= prob_threshold]))
     certain_diff_features <- certain_diff_features[-is.na(certain_diff_features),]
+    
     names(certain_diff_features) <- c("feature_that_differed", "probability_of_difference")
-    certain_diff_features$effect_size <- 
-      effectSizes_cert_differences[names(effectSizes_cert_differences) %in% certain_diff_features$feature_that_differed]
-    certain_diff_features_list[[m]] <- certain_diff_features
+    
+    certain_diff_features <- data.frame(certain_diff_features, enframe(
+      unlist( 
+        effectSizes_cert_differences[names(effectSizes_cert_differences) %in% certain_diff_features$feature_that_differed]))
+    )
+    if(any((certain_diff_features$name == certain_diff_features$feature_that_differed) == F)){
+      print("ERROR: the order of OTUs that effect sizes were calculated for does not match expectations. Something deep is wrong and you will need to dig in to the source code to fix it.")
     }
+    certain_diff_features <- certain_diff_features[names(certain_diff_features) != "name"]
+    names(certain_diff_features)[length(certain_diff_features)] <- "effect size"
+    
+    certain_diff_features_list[[m]] <- certain_diff_features
+  }
+  
     names(certain_diff_features_list) <- output[,1]
     
     return(list(certainty_of_diffs = output,
