@@ -198,7 +198,7 @@ cnvrg_VI <- function(countData,
 #' The posterior probability distribution of differences is also output. These samples can be useful for plotting or other downstream analyses.
 #' Finally, a list of data frames describing the features that differed among treatment comparisons is output, with the probability of differences and the magnitude of those differences (the effect size) included. 
 #' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
-#' @param countData Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.
+#' @param countData Dataframe of count data that was modeled. Should be exactly the same as those data modeled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.
 #' @param prob_threshold Probability threshold, below which it is considered that features had a high probability of differing between groups. Default is 0.05.
 #' @return A dataframe with the first field denoting the treatment comparison (e.g., treatment 1 vs. 2) and subsequent fields stating the proportion of samples from the posterior that were greater than zero (called "certainty of diffs"). Note that each treatment group is compared to all other groups, which leads to some redundancy in output. A list, called ppd_diffs, holding samples from the posterior probability distribution of the differences is also output. Finally, a list of dataframes describing results for only those features with a high probability of differing is output (this list is named: features_that_differed).
 #' @examples
@@ -363,12 +363,12 @@ diff_abund <- function(model_out, countData, prob_threshold = 0.05){
 #'
 #' Takes as input either a fitted Stan oject from the cnvrg_HMC or cnvrg_VI functions, or the output of isd_transform. 
 #' As always, doublecheck the results to ensure the function has output reasonable values. Note that because there are no zero values 
-#' and all proportion estimates are non-zero there is a lot of information within the modelled data. Because diversity entropies
-#' are measures of information content, this means there will be a much higher entropy estimate for modelled data than the raw
-#' count data. However, patterns of variation in diversity should be similar among treatment groups for modelled and raw data. 
+#' and all proportion estimates are non-zero there is a lot of information within the modeled data. Because diversity entropies
+#' are measures of information content, this means there will be a much higher entropy estimate for modeled data than the raw
+#' count data. However, patterns of variation in diversity should be similar among treatment groups for modeled and raw data. 
 #' 
 #' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI or isd_transform
-#' @param countData Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.
+#' @param countData Dataframe of count data that was modeled. Should be exactly the same as those data modeled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.
 #' @param params Parameter for which to calculate diversity, can be 'p' or 'pi' or both (e.g., c("pi","p"))
 #' @param entropy_measure Diversity entropy to use, can be one of 'shannon' or 'simpson'
 #' @param equivalents Convert entropies into number equivalents. Defaults to true. See Jost (2006), "Entropy and diversity"
@@ -577,7 +577,7 @@ diversity_plotter <- function(div,
 #'
 #' Provides the mean value of posterior probability distributions for parameters.
 #' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
-#' @param countData The count data modelled.
+#' @param countData The count data modeled.
 #' @param params Parameters to be extracted, either pi or p
 #' @return A list of data frames of point estimates for model parameters.
 #' @examples
@@ -599,7 +599,7 @@ diversity_plotter <- function(div,
 #' out <- cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
 #' extract_point_estimate(model_out = out, countData = com_demo)
 #' @export
-extract_point_estimate <- function(model_out, countData, params = "pi"){
+extract_point_estimate <- function(model_out, countData, params = c("pi", "p")){
   
   pis <- rstan::extract(model_out, "pi")
   treatments <- rapply(pis, dim, how="list")$pi[2]
@@ -609,17 +609,19 @@ extract_point_estimate <- function(model_out, countData, params = "pi"){
   for (i in 1:treatments) {
     treats[i] <- paste("treatment", i, sep = "_")
   }
-    out_pis <-
+  #make export object of the pis
+  out_pis <-
       data.frame(treats, apply(pis$pi[, , ], MARGIN = c(2, 3), FUN = mean))
+  
   if(length(names(countData)[2:dim(countData)[2]]) + 1 != length(out_pis)){
     print("ERROR: the length of the name vector from the count data does not match the length of modeled pi parameters. Check that the count data provided to this function are exactly those that were modeled.")
   }
     
-    colnames(out_pis) <- c("treatments", names(countData)[2:dim(countData)[2]])
+  colnames(out_pis) <- c("treatments", names(countData)[2:dim(countData)[2]])
   
   #Catch ps only if they exist
   
-  if( length(grep("^p[\\.[]", names(model_out@sim$samples[[1]]))) != 0 ){
+  if( length(grep("^p\\[\\d+,\\d+\\]", names(model_out@sim$samples[[1]]))) != 0 ){ #This mess looks for "p" parameters
       ps <- rstan::extract(model_out, "p")
       out_ps <- data.frame(countData[,1], apply(ps$p[, , ], MARGIN = c(2, 3), FUN = mean))
       colnames(out_ps) <-
@@ -630,16 +632,16 @@ extract_point_estimate <- function(model_out, countData, params = "pi"){
     print("The names of the count data provided include NA or are NULL. If more informative names are desired for the output then the count matrix should have column names.")
   }
   
-  if(any(params == "pi") & 
-     any(params == "p")){
+  if( exists("out_pis") & 
+      exists("out_ps")){
       return(list(
         pointEstimates_p = out_ps,
         pointEstimates_pi = out_pis)
-      )}else if(any(params == "pi")){
+      )}else if(exists("out_pis")){
         return(list(
           pointEstimates_pi = out_pis)
         )
-      }else if(any(params == "p")){
+      }else if(exists("out_ps")){
         return(list(
           pointEstimates_p = out_ps)
         )
@@ -734,7 +736,7 @@ indexer <- function(x){
 #' If an internal standard (ISD) has been added to samples such that the counts for that standard are representative of the same absolute abundance, then the ISD can be used to transform relative abundance data such that they are proportional to absolute abundances (Harrison et al. 2020). 
 #' This function performs this division while preserving uncertainty in relative abundance estimates of both the ISD and the other features present.
 #' 
-#' An index for the ISD must be provided. This should be the field index that corresponds with the ISD. Remember that the index should mirror what has been modelled. Also, note that this function subtracts one from this index because the modeled data have a non-integer sample field.
+#' An index for the ISD must be provided. This should be the field index that corresponds with the ISD. Remember that the index should mirror what has been modeled. Also, note that this function subtracts one from this index because the modeled data have a non-integer sample field.
 #' If the wrong index is passed in, the output of this function will be incorrect, but there will not be a fatal error or warning.
 #' 
 #' A simple check that the correct index has been passed to the function is to examine the output and make sure that the field that should correspond with the ISD is one (signifying that the ISD was divided by itself).
@@ -742,7 +744,7 @@ indexer <- function(x){
 #' Output format can either as means of the samples for each pi parameter or the transformed samples from the posterior distribution for that parameter.
 #' Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources.
 #' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
-#' @param countData The count data modelled.
+#' @param countData The count data modeled.
 #' @param isd_index The index for the field with information for the internal standard.
 #' @param format The output format. Can be either 'or 'samples' or 'ml'. "samples" outputs samples from the posterior probability distribution, the last option ("ml") outputs the mean of posterior samples for each parameter.
 #' @return A dataframe, or list, specifying either point estimates for each feature in each treatment group (if output format is 'ml') or samples from the posteriof (if output format is 'samples').
@@ -773,7 +775,7 @@ isd_transform <- function(model_out, isd_index, countData, format = "stan"){
     stop("An index for the ISD has not been provided.")
   }
   isd_index <- isd_index - 1 
-  #This is because the modelled p values are one fewer then the dimensions of the count data, 
+  #This is because the modeled p values are one fewer then the dimensions of the count data, 
   #because the count data had a sample name column.
   #if(model_out@stan_args[[1]]$method == "sampling"){
     pis <- rstan::extract(model_out, "pi")
@@ -819,7 +821,7 @@ isd_transform <- function(model_out, isd_index, countData, format = "stan"){
 #' Consider examining rank-abundance profiles instead or focusing on shifts in the relative abundance of particular taxa.
 #' 
 #' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI or isd_transform
-#' @param countData Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields.
+#' @param countData Dataframe of count data that was modeled. Should be exactly the same as those data modeled! The first field should be sample name and integer count data should be in all other fields.
 #' @param params Parameter for which to calculate richness, can be 'p' or 'pi' or both (e.g., c("pi","p"))
 #' @param threshold Threshold to use for calculating richness.
 #' @return Posterior probability distribution of richness estimates for each parameter.
@@ -864,7 +866,7 @@ rich_calc <- function(model_out, countData, params = "pi", threshold = 0.01){
     }else if(class(model_out) == "array"){
       ps <- model_out
     }
-    rich_p <- apply(ps$p, MARGIN = c(1,2), 
+    rich_p <- apply(ps$p, MARGIN = c(1,2), #by PPD samples and biological samples...not by features
                      FUN = function(x){length(which(x > threshold))})
     names(rich_p) <- countData[,1]
     rownames(rich_p) <- paste("ppd_sample", seq(1, samples), sep = "_")

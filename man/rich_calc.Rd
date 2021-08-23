@@ -9,7 +9,7 @@ rich_calc(model_out, countData, params = "pi", threshold = 0.01)
 \arguments{
 \item{model_out}{Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI or isd_transform}
 
-\item{countData}{Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields.}
+\item{countData}{Dataframe of count data that was modeled. Should be exactly the same as those data modeled! The first field should be sample name and integer count data should be in all other fields.}
 
 \item{params}{Parameter for which to calculate richness, can be 'p' or 'pi' or both (e.g., c("pi","p"))}
 

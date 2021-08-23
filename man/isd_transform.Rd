@@ -11,9 +11,9 @@ isd_transform(model_out, isd_index, countData, format = "stan")
 
 \item{isd_index}{The index for the field with information for the internal standard.}
 
-\item{countData}{The count data modelled.}
+\item{countData}{The count data modeled.}
 
-\item{format}{The output format. Can be either 'or 'samples' or 'ml'. "samples" outputs samples from the posterior probability distribution, the last option ("ml") outputs maximum likelihood estimates for each parameter.}
+\item{format}{The output format. Can be either 'or 'samples' or 'ml'. "samples" outputs samples from the posterior probability distribution, the last option ("ml") outputs the mean of posterior samples for each parameter.}
 }
 \value{
 A dataframe, or list, specifying either point estimates for each feature in each treatment group (if output format is 'ml') or samples from the posteriof (if output format is 'samples').
@@ -23,12 +23,12 @@ If an internal standard (ISD) has been added to samples such that the counts for
 This function performs this division while preserving uncertainty in relative abundance estimates of both the ISD and the other features present.
 }
 \details{
-An index for the ISD must be provided. This should be the field index that corresponds with the ISD. Remember that the index should mirror what has been modelled. Also, note that this function subtracts one from this index because the modeled data have a non-integer sample field.
+An index for the ISD must be provided. This should be the field index that corresponds with the ISD. Remember that the index should mirror what has been modeled. Also, note that this function subtracts one from this index because the modeled data have a non-integer sample field.
 If the wrong index is passed in, the output of this function will be incorrect, but there will not be a fatal error or warning.
 
 A simple check that the correct index has been passed to the function is to examine the output and make sure that the field that should correspond with the ISD is one (signifying that the ISD was divided by itself).
 
-Output format can either be maximum likelihood estimates of each pi parameter or the transformed samples from the posterior distribution for that parameter. The maximum likelihood estimate is simply the mean of the posterior distribution.
+Output format can either as means of the samples for each pi parameter or the transformed samples from the posterior distribution for that parameter.
 Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources.
 }
 \examples{

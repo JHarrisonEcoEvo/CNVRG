@@ -4,12 +4,12 @@
 \alias{extract_point_estimate}
 \title{Extract point estimates of multinomial and Dirichlet parameters}
 \usage{
-extract_point_estimate(model_out, countData, params = "pi")
+extract_point_estimate(model_out, countData, params = c("pi", "p"))
 }
 \arguments{
 \item{model_out}{Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI}
 
-\item{countData}{The count data modelled.}
+\item{countData}{The count data modeled.}
 
 \item{params}{Parameters to be extracted, either pi or p}
 }

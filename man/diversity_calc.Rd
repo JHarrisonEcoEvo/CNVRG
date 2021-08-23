@@ -15,7 +15,7 @@ diversity_calc(
 \arguments{
 \item{model_out}{Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI or isd_transform}
 
-\item{countData}{Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.}
+\item{countData}{Dataframe of count data that was modeled. Should be exactly the same as those data modeled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.}
 
 \item{params}{Parameter for which to calculate diversity, can be 'p' or 'pi' or both (e.g., c("pi","p"))}
 
@@ -32,9 +32,9 @@ Calculate Shannon's or Simpson's entropies for each replicate while propagating 
 \details{
 Takes as input either a fitted Stan oject from the cnvrg_HMC or cnvrg_VI functions, or the output of isd_transform.
 As always, doublecheck the results to ensure the function has output reasonable values. Note that because there are no zero values
-and all proportion estimates are non-zero there is a lot of information within the modelled data. Because diversity entropies
-are measures of information content, this means there will be a much higher entropy estimate for modelled data than the raw
-count data. However, patterns of variation in diversity should be similar among treatment groups for modelled and raw data.
+and all proportion estimates are non-zero there is a lot of information within the modeled data. Because diversity entropies
+are measures of information content, this means there will be a much higher entropy estimate for modeled data than the raw
+count data. However, patterns of variation in diversity should be similar among treatment groups for modeled and raw data.
 }
 \examples{
 #simulate an OTU table

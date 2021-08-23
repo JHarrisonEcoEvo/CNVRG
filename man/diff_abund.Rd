@@ -9,7 +9,7 @@ diff_abund(model_out, countData, prob_threshold = 0.05)
 \arguments{
 \item{model_out}{Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI}
 
-\item{countData}{Dataframe of count data that was modelled. Should be exactly the same as those data modelled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.}
+\item{countData}{Dataframe of count data that was modeled. Should be exactly the same as those data modeled! The first field should be sample name and integer count data should be in all other fields. This is passed in so that the names of fields can be used to make the output of differential relative abundance testing more readable.}
 
 \item{prob_threshold}{Probability threshold, below which it is considered that features had a high probability of differing between groups. Default is 0.05.}
 }
