@@ -8,6 +8,8 @@
 #' @useDynLib CNVRG, .registration = TRUE
 #' @import methods
 #' @import Rcpp
+#' @import tibble
+#' @importFrom vegan diversity
 #' @importFrom rstan sampling
 #'
 #' @references
