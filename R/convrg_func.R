@@ -58,7 +58,7 @@ cnvrg_HMC <- function(countData,
 ){
   #Statements, warnings, and errors
   if(dim(countData)[2] > 5000 & dim(countData)[1] > 100){
-    print("You have a lot of data. Yay! Beware that modelling could be slow and you may want to run this on a remote computer.")
+    print("You have a lot of data. Yay! Beware that modeling could be slow and you may want to run this on a remote computer.")
   }
   if(any(c("NUTS", "HMC", "Fixed_param") %in% algorithm) == F){
     stop("Algorithm must be one of 'NUTS', 'HMC', 'Fixed_param'. Be like a squirrel.")
@@ -148,7 +148,7 @@ cnvrg_VI <- function(countData,
 ){
   #Statements, warnings, and errors
   if(dim(countData)[2] > 5000 & dim(countData)[1] > 100){
-    print("You have a lot of data. Yay! Beware that modelling could be slow and you may want to run this on a remote computer.")
+    print("You have a lot of data. Yay! Beware that modeling could be slow and you may want to run this on a remote computer.")
   }
   if(algorithm %in% c("meanfield", "fullrank") == F){
     stop("Algorithm must be one of 'meanfield' or 'fullrank'.")
@@ -192,7 +192,7 @@ cnvrg_VI <- function(countData,
 #' This function only works for pi parameters.
 #' 
 #' The output of this function gives the proportion of samples that were greater than zero after subtracting the two relevant posterior distributions. Therefore, values that are very large or very small denote a high certainty that the distributions subtracted differ.
-#' If this concept is not clear, then read Harrison et al. 2020 "Dirichlet‐multinomial modelling outperforms alternatives for analysis of microbiome and other ecological count data" in Molecular Ecology Resources. 
+#' If this concept is not clear, then read Harrison et al. 2020 "Dirichlet‐multinomial modeling outperforms alternatives for analysis of microbiome and other ecological count data" in Molecular Ecology Resources. 
 #' For a simple explanation, see this video: https://use.vg/OSVhFJ
 #' 
 #' The posterior probability distribution of differences is also output. These samples can be useful for plotting or other downstream analyses.
