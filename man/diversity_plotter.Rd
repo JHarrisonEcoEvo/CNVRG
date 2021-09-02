@@ -20,6 +20,18 @@ diversity_plotter(
 \item{div}{Output of CNVRG's diversity_calc function.}
 
 \item{color_vec}{A vector of colors with an element for each sampling group.}
+
+\item{xlim}{A vector defining the x-axis range.}
+
+\item{ylim}{A vector defining the y-axis range.}
+
+\item{las}{Plotting command to change the orientation of axis labels.}
+
+\item{ylab}{A character string for labeling the y axis.}
+
+\item{xlab}{A character string for labeling the x axis.}
+
+\item{frame.plot}{Boolean, put a box around the plot or not.}
 }
 \value{
 A plot.
@@ -29,6 +41,9 @@ Simple function to plot density curves for diversity posteriors. This function t
 the output of the diversity_calc function and a vector of colors of your choosing.
 Look into the viridis package to make a nice color vector. For additional functionality,
 simply look inside this function to find the plotting code and modify it as you need.
+}
+\details{
+This function will pass any of the standard plotting commands along, so feel free to add them.
 }
 \examples{
 #simulate an OTU table

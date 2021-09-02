@@ -123,21 +123,21 @@ cnvrg_HMC <- function(countData,
 #' @return A fitted 'Stan' object that includes the samples from the parameters designated.
 #' @examples
 #' #simulate an OTU table
-#' com_demo <-matrix(0, nrow = 10, ncol = 10)
-#' com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
-#' com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
-#' fornames <- NA
-#' for(i in 1:length(com_demo[1,])){
-#' fornames[i] <- paste("otu_", i, sep = "")
-#' }
-#' sample_vec <- NA
-#' for(i in 1:length(com_demo[,1])){
-#' sample_vec[i] <- paste("sample", i, sep = "_")
-#' }
-#' com_demo <- data.frame(sample_vec, com_demo)
-#' names(com_demo) <- c("sample", fornames)
-#' 
-#' cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
+# com_demo <-matrix(0, nrow = 10, ncol = 10)
+# com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
+# com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
+# fornames <- NA
+# for(i in 1:length(com_demo[1,])){
+# fornames[i] <- paste("otu_", i, sep = "")
+# }
+# sample_vec <- NA
+# for(i in 1:length(com_demo[,1])){
+# sample_vec[i] <- paste("sample", i, sep = "_")
+# }
+# com_demo <- data.frame(sample_vec, com_demo)
+# names(com_demo) <- c("sample", fornames)
+# 
+# cnvrg_VI(com_demo,starts = c(1,6), ends=c(5,10))
 #' @export
 cnvrg_VI <- function(countData,
                      starts,
@@ -513,8 +513,18 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
 #' the output of the diversity_calc function and a vector of colors of your choosing. 
 #' Look into the viridis package to make a nice color vector. For additional functionality,
 #' simply look inside this function to find the plotting code and modify it as you need.
+#' 
+#' This function will pass any of the standard plotting commands along, so feel free to add them.
+#' 
 #' @param div Output of CNVRG's diversity_calc function.
 #' @param color_vec A vector of colors with an element for each sampling group.
+#' @param xlim A vector defining the x-axis range.
+#' @param ylim A vector defining the y-axis range.
+#' @param las Plotting command to change the orientation of axis labels.
+#' @param ylab A character string for labeling the y axis.
+#' @param xlab A character string for labeling the x axis.
+#' @param frame.plot Boolean, put a box around the plot or not.
+
 #' @return A plot.
 #' @examples
 #' #simulate an OTU table
