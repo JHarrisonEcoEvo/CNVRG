@@ -524,7 +524,7 @@ diversity_calc <- function(model_out, countData, params = "pi", entropy_measure 
 #' @param ylab A character string for labeling the y axis.
 #' @param xlab A character string for labeling the x axis.
 #' @param frame.plot Boolean, put a box around the plot or not.
-
+#' @param ... Further arguments accepted by plot().
 #' @return A plot.
 #' @examples
 #' #simulate an OTU table
