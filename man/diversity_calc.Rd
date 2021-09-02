@@ -27,7 +27,7 @@ diversity_calc(
 A list that has samples from posterior distributions of entropy metrics
 }
 \description{
-Calculate Shannon's or Simpson's entropies for each replicate while propagating uncertainty in relative abundance estimates through calculations.
+Calculate Shannon's or Simpson's indices for each replicate while propagating uncertainty in relative abundance estimates through calculations.
 }
 \details{
 Takes as input either a fitted Stan oject from the cnvrg_HMC or cnvrg_VI functions, or the output of isd_transform.

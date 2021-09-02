@@ -10,9 +10,9 @@
 #' Warning: data must be input in the correct organized format or this function will not provide accurate results. See vignette if you are unsure how to organize data.
 #' Warning: depending upon size of data to be analyzed this function can take a very long time to run.
 #' @param countData A matrix or data frame of counts.The first field should be sample names and the subsequent fields should be integer data. Data should be arranged so that the first n rows correspond to one treatment group and the next n rows correspond with the next treatment group, and so on. The row indices for the first and last sample in these groups are fed into this function via 'starts' and 'ends'.
-#' @param starts A vector defining the indices that correspond to the first sample in each treatment group.
-#' @param ends A vector defining the indices that correspond to the last sample in each treatment group.
-#' @param algorithm The algorithm to use when sampling. Either 'NUTS' or 'HMC' or 'Fixed_param'. If unsure, then pick NUTS. This is "No U-turn sampling". The abbreviation is from 'Stan'.
+#' @param starts A vector defining the indices that correspond to the first sample in each treatment group. The indexer function can help with this.
+#' @param ends A vector defining the indices that correspond to the last sample in each treatment group. The indexer function can help with this.
+#' @param algorithm The algorithm to use when sampling. Either 'NUTS' or 'HMC' or 'Fixed_param'. If unsure, then be like a squirrel. This is "No U-turn sampling". The abbreviation is from 'Stan'.
 #' @param chains The number of chains to run.
 #' @param burn The warm-up or 'burn-in' time.
 #' @param samples How many samples from the posterior to save.
@@ -58,7 +58,7 @@ cnvrg_HMC <- function(countData,
 ){
   #Statements, warnings, and errors
   if(dim(countData)[2] > 5000 & dim(countData)[1] > 100){
-    print("You have a lot of data. Beware that modelling could be slow and you may want to run this on a remote computer.")
+    print("You have a lot of data. Yay! Beware that modelling could be slow and you may want to run this on a remote computer.")
   }
   if(any(c("NUTS", "HMC", "Fixed_param") %in% algorithm) == F){
     stop("Algorithm must be one of 'NUTS', 'HMC', 'Fixed_param'. Be like a squirrel.")
@@ -115,8 +115,8 @@ cnvrg_HMC <- function(countData,
 #' Warning: data must be input in the correct organized format or this function will not provide accurate results. See vignette if you are unsure how to organize data.
 #' Warning: depending upon size of data to be analyzed this function can take a very long time to run.
 #' @param countData A matrix or data frame of counts.The first field should be sample names and the subsequent fields should be integer data. Data should be arranged so that the first n rows correspond to one treatment group and the next n rows correspond with the next treatment group, and so on. The row indices for the first and last sample in these groups are fed into this function via 'starts' and 'ends'.
-#' @param starts A vector defining the indices that correspond to the first sample in each treatment group.
-#' @param ends A vector defining the indices that correspond to the last sample in each treatment group.
+#' @param starts A vector defining the indices that correspond to the first sample in each treatment group. The indexer function can help with this.
+#' @param ends A vector defining the indices that correspond to the last sample in each treatment group. The indexer function can help with this.
 #' @param algorithm The algorithm to use when performing variational inference. Either 'meanfield' or 'fullrank'. The former is the default.
 #' @param output_samples The number of samples from the approximated posterior to save.
 #' @param params_to_save The parameters from which to save samples. Can be 'p', 'pi', 'theta'.
@@ -148,12 +148,12 @@ cnvrg_VI <- function(countData,
 ){
   #Statements, warnings, and errors
   if(dim(countData)[2] > 5000 & dim(countData)[1] > 100){
-    print("You have a lot of data. Beware that modelling could be slow and you may want to run this on a remote computer.")
+    print("You have a lot of data. Yay! Beware that modelling could be slow and you may want to run this on a remote computer.")
   }
   if(algorithm %in% c("meanfield", "fullrank") == F){
     stop("Algorithm must be one of 'meanfield' or 'fullrank'.")
   }
-  if(output_samples > 5000){
+  if(output_samples > 800){
     print("Why saving so many samples? Try saving fewer to avoid filling up disk.")
   }
   if(any(c("pi", "p","theta") %in% params_to_save)  == F){
@@ -359,7 +359,7 @@ diff_abund <- function(model_out, countData, prob_threshold = 0.05){
 
 #' Calculate diversity entropies for each replicate
 #'
-#' Calculate Shannon's or Simpson's entropies for each replicate while propagating uncertainty in relative abundance estimates through calculations.
+#' Calculate Shannon's or Simpson's indices for each replicate while propagating uncertainty in relative abundance estimates through calculations.
 #'
 #' Takes as input either a fitted Stan oject from the cnvrg_HMC or cnvrg_VI functions, or the output of isd_transform. 
 #' As always, doublecheck the results to ensure the function has output reasonable values. Note that because there are no zero values 
@@ -578,8 +578,8 @@ diversity_plotter <- function(div,
 #' Provides the mean value of posterior probability distributions for parameters.
 #' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
 #' @param countData The count data modeled.
-#' @param params Parameters to be extracted, either pi or p
-#' @return A list of data frames of point estimates for model parameters.
+#' @param params Parameters to be extracted, either pi (Dirichlet) or p (multinomial).
+#' @return A list of of point estimates for model parameters. If both multinomial and Dirichlet parameters are requested then they will be named elements of a list.
 #' @examples
 #' #simulate an OTU table
 #' com_demo <-matrix(0, nrow = 10, ncol = 10)
@@ -621,7 +621,7 @@ extract_point_estimate <- function(model_out, countData, params = c("pi", "p")){
   
   #Catch ps only if they exist
   
-  if( length(grep("^p\\[\\d+,\\d+\\]", names(model_out@sim$samples[[1]]))) != 0 ){ #This mess looks for "p" parameters
+  if( any(params == "p") ){
       ps <- rstan::extract(model_out, "p")
       out_ps <- data.frame(countData[,1], apply(ps$p[, , ], MARGIN = c(2, 3), FUN = mean))
       colnames(out_ps) <-

@@ -11,10 +11,10 @@ extract_point_estimate(model_out, countData, params = c("pi", "p"))
 
 \item{countData}{The count data modeled.}
 
-\item{params}{Parameters to be extracted, either pi or p}
+\item{params}{Parameters to be extracted, either pi (Dirichlet) or p (multinomial).}
 }
 \value{
-A list of data frames of point estimates for model parameters.
+A list of of point estimates for model parameters. If both multinomial and Dirichlet parameters are requested then they will be named elements of a list.
 }
 \description{
 Provides the mean value of posterior probability distributions for parameters.

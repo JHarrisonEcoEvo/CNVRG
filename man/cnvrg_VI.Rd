@@ -16,9 +16,9 @@ cnvrg_VI(
 \arguments{
 \item{countData}{A matrix or data frame of counts.The first field should be sample names and the subsequent fields should be integer data. Data should be arranged so that the first n rows correspond to one treatment group and the next n rows correspond with the next treatment group, and so on. The row indices for the first and last sample in these groups are fed into this function via 'starts' and 'ends'.}
 
-\item{starts}{A vector defining the indices that correspond to the first sample in each treatment group.}
+\item{starts}{A vector defining the indices that correspond to the first sample in each treatment group. The indexer function can help with this.}
 
-\item{ends}{A vector defining the indices that correspond to the last sample in each treatment group.}
+\item{ends}{A vector defining the indices that correspond to the last sample in each treatment group. The indexer function can help with this.}
 
 \item{algorithm}{The algorithm to use when performing variational inference. Either 'meanfield' or 'fullrank'. The former is the default.}
 
