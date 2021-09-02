@@ -24,8 +24,3 @@ VIGNETTE
 The vignette can be found [HERE](https://rpubs.com/harrisonjg/792276) and the Rmd can be found at the GitHub repo linked above. Additionally, a video providing the intuition behind the CNVRG model can be found [here](https://use.vg/OSVhFJ)
 
 For those interested in the details of the model see our paper in Molecular Ecology Resources called, ["Dirichlet‐multinomial modelling outperforms alternatives for analysis of microbiome and other ecological count data"](https://onlinelibrary.wiley.com/doi/epdf/10.1111/1755-0998.13128)
-
-
-<!-- badges: start -->
-[![Travis build status](https://travis-ci.com/JHarrisonEcoEvo/CNVRG.svg?branch=master)](https://travis-ci.com/JHarrisonEcoEvo/CNVRG)
-<!-- badges: end -->
