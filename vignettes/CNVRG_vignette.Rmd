@@ -3,6 +3,7 @@ title: "CNVRG vignette"
 author: "Joshua Harrison"
 date: "`r Sys.Date()`"
 output:
+  pdf_document: default
   html_document:
     df_print: paged
 vignette: |
@@ -52,7 +53,7 @@ modelOut <- cnvrg_HMC(countData = fungi,
        ends = indexer(fungi$treatment)$ends, #c(38,75,112,148),
        chains = 2, 
        burn = 500, 
-       samples = 2000, 
+       samples = 1000, 
        thinning_rate = 2,
        cores = 1,
        params_to_save = c("pi", "p"))
@@ -77,14 +78,14 @@ If model diagnostics seem sufficient then analyses can be performed using relati
 While we advocate using samples describing posterior distributions for parameters of interest whenever possible, we acknowledge that sometimes it is convenient to obtain point estimates for those parameters. To do so for pi parameters we can use the 'CNVRG' function 'extract_point_estimate' like so:
 
 ```{r}
-point_est <- extract_point_estimate(modelOut = modelOut, countData = fungi, treatments = 2)
+point_est <- extract_point_estimate(model_out = modelOut, countData = fungi)
 ```
 
 ## Differential relative abundance testing
 
 One common analysis is to compare relative abundances of features between treatment groups. This is commonly referred to as 'differential abundance testing' in the microbial ecology and functional genomics literatures. 'CNVRG' provides functions to ease this analysis. Simply pass in the extracted pi parameters (the function does not work for other parameters) and specify the count data used. The count data must follow the exact format as those modelled and be in the same order.
 ```{r}
-diff_abund_test <- diff_abund(model_output = modelOut, countData = fungi)
+diff_abund_test <- diff_abund(model_out = modelOut, countData = fungi)
 ```
 
 This function subtracts the posterior distribution of the pi paramater for each feature in one treatment group from the pi parameter distribution in other treatment groups. The function outputs a matrix of proportions that describes the proportion of the distribution of differences that is greater than zero, for each comparison. In this example, the comparison between treatment 1 and treatment 3 provided the following results.
@@ -105,11 +106,11 @@ Often some measure of the information content of data is desirable. This can be 
 
 To calculate diversity entropies use the 'diversity_calc' function:
 ```{r}
-entropies <- diversity_calc(model_output = modelOut, countData = fungi,
+entropies <- diversity_calc(model_out = modelOut, countData = fungi,
                             entropy_measure = 'shannon',equivalents = T)
 ```
 
-We do not provide explicit plotting functions for entropy posteriors as we suspect users will have formatting desires that preclude the use of canned functions. However, a simple way to plot entropy posteriors is via density plots using base 'R'. For example: 
+We provide limited plotting functions for posteriors as we suspect users will have formatting desires that preclude the use of canned functions. However, a simple way to plot posteriors is via density plots using base 'R'. For example: 
 ```{r}
 plot(density(entropies[[1]][[1]]),
      xlab = "Entropy",
