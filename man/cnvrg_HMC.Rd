@@ -24,11 +24,11 @@ cnvrg_HMC(
 
 \item{ends}{A vector defining the indices that correspond to the last sample in each treatment group. The indexer function can help with this.}
 
-\item{algorithm}{The algorithm to use when sampling. Either 'NUTS' or 'HMC' or 'Fixed_param'. If unsure, then be like a squirrel. This is "No U-turn sampling". The abbreviation is from 'Stan'.}
+\item{algorithm}{The algorithm to use when sampling. Either 'NUTS' or 'HMC' or 'Fixed_param'. If unsure, then be like a squirrel. This is "No U turn sampling". The abbreviation is from 'Stan'.}
 
 \item{chains}{The number of chains to run.}
 
-\item{burn}{The warm-up or 'burn-in' time.}
+\item{burn}{The warm up or 'burn in' time.}
 
 \item{samples}{How many samples from the posterior to save.}
 
@@ -42,7 +42,7 @@ cnvrg_HMC(
 A fitted 'Stan' object that includes the samples from the parameters designated.
 }
 \description{
-This function uses a compiled Dirichlet-multinomial model and performs Hamiltonian Monte Carlo sampling of posteriors using 'Stan'.
+This function uses a compiled Dirichlet multinomial model and performs Hamiltonian Monte Carlo sampling of posteriors using 'Stan'.
 After sampling it is important to check convergence. Use the summary function and shinystan to do this.
 If you use this function then credit 'Stan' and 'RStan' along with this package.
 }

@@ -1,7 +1,7 @@
 
 #' Perform Hamiltonian Monte Carlo sampling
 #'
-#' This function uses a compiled Dirichlet-multinomial model and performs Hamiltonian Monte Carlo sampling of posteriors using 'Stan'.
+#' This function uses a compiled Dirichlet multinomial model and performs Hamiltonian Monte Carlo sampling of posteriors using 'Stan'.
 #' After sampling it is important to check convergence. Use the summary function and shinystan to do this.
 #' If you use this function then credit 'Stan' and 'RStan' along with this package. 
 #' 
@@ -12,9 +12,9 @@
 #' @param countData A matrix or data frame of counts.The first field should be sample names and the subsequent fields should be integer data. Data should be arranged so that the first n rows correspond to one treatment group and the next n rows correspond with the next treatment group, and so on. The row indices for the first and last sample in these groups are fed into this function via 'starts' and 'ends'.
 #' @param starts A vector defining the indices that correspond to the first sample in each treatment group. The indexer function can help with this.
 #' @param ends A vector defining the indices that correspond to the last sample in each treatment group. The indexer function can help with this.
-#' @param algorithm The algorithm to use when sampling. Either 'NUTS' or 'HMC' or 'Fixed_param'. If unsure, then be like a squirrel. This is "No U-turn sampling". The abbreviation is from 'Stan'.
+#' @param algorithm The algorithm to use when sampling. Either 'NUTS' or 'HMC' or 'Fixed_param'. If unsure, then be like a squirrel. This is "No U turn sampling". The abbreviation is from 'Stan'.
 #' @param chains The number of chains to run.
-#' @param burn The warm-up or 'burn-in' time.
+#' @param burn The warm up or 'burn in' time.
 #' @param samples How many samples from the posterior to save.
 #' @param thinning_rate Thinning rate to use during sampling.
 #' @param cores The number of cores to use.
@@ -363,7 +363,7 @@ diff_abund <- function(model_out, countData, prob_threshold = 0.05){
 #'
 #' Takes as input either a fitted Stan object from the cnvrg_HMC or cnvrg_VI functions, or the output of isd_transform. 
 #' As always, doublecheck the results to ensure the function has output reasonable values. Note that because there are no zero values 
-#' and all proportion estimates are non-zero there is a lot of information within the modeled data. Because diversity entropies
+#' and all proportion estimates are non zero there is a lot of information within the modeled data. Because diversity entropies
 #' are measures of information content, this means there will be a much higher entropy estimate for modeled data than the raw
 #' count data. However, patterns of variation in diversity should be similar among treatment groups for modeled and raw data. 
 #' 
@@ -670,13 +670,13 @@ indexer <- function(x){
 #' If an internal standard (ISD) has been added to samples such that the counts for that standard are representative of the same absolute abundance, then the ISD can be used to transform relative abundance data such that they are proportional to absolute abundances (Harrison et al. 2020). 
 #' This function performs this division while preserving uncertainty in relative abundance estimates of both the ISD and the other features present.
 #' 
-#' An index for the ISD must be provided. This should be the field index that corresponds with the ISD. Remember that the index should mirror what has been modeled. Also, note that this function subtracts one from this index because the modeled data have a non-integer sample field.
+#' An index for the ISD must be provided. This should be the field index that corresponds with the ISD. Remember that the index should mirror what has been modeled. Also, note that this function subtracts one from this index because the modeled data have a non integer sample field.
 #' If the wrong index is passed in, the output of this function will be incorrect, but there will not be a fatal error or warning.
 #' 
 #' A simple check that the correct index has been passed to the function is to examine the output and make sure that the field that should correspond with the ISD is one (signifying that the ISD was divided by itself).
 #' 
 #' Output format can either as means of the samples for each pi parameter or the transformed samples from the posterior distribution for that parameter.
-#' Harrison et al. 2020. 'The quest for absolute abundance: the use of internal standards for DNA-based community ecology' Molecular Ecology Resources.
+#' Harrison et al. 2020. 'The quest for absolute abundance: the use of internal standards for DNA based community ecology' Molecular Ecology Resources.
 #' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
 #' @param countData The count data modeled.
 #' @param isd_index The index for the field with information for the internal standard.

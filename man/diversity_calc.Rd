@@ -32,7 +32,7 @@ Calculate Shannon's or Simpson's indices for each replicate while propagating un
 \details{
 Takes as input either a fitted Stan object from the cnvrg_HMC or cnvrg_VI functions, or the output of isd_transform.
 As always, doublecheck the results to ensure the function has output reasonable values. Note that because there are no zero values
-and all proportion estimates are non-zero there is a lot of information within the modeled data. Because diversity entropies
+and all proportion estimates are non zero there is a lot of information within the modeled data. Because diversity entropies
 are measures of information content, this means there will be a much higher entropy estimate for modeled data than the raw
 count data. However, patterns of variation in diversity should be similar among treatment groups for modeled and raw data.
 }
