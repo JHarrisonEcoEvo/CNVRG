@@ -16,7 +16,7 @@ isd_transform(model_out, isd_index, countData, format = "stan")
 \item{format}{The output format. Can be either 'or 'samples' or 'ml'. "samples" outputs samples from the posterior probability distribution, the last option ("ml") outputs the mean of posterior samples for each parameter.}
 }
 \value{
-A dataframe, or list, specifying either point estimates for each feature in each treatment group (if output format is 'ml') or samples from the posteriof (if output format is 'samples').
+A dataframe, or list, specifying either point estimates for each feature in each treatment group (if output format is 'ml') or samples from the posterior (if output format is 'samples').
 }
 \description{
 If an internal standard (ISD) has been added to samples such that the counts for that standard are representative of the same absolute abundance, then the ISD can be used to transform relative abundance data such that they are proportional to absolute abundances (Harrison et al. 2020).
@@ -29,7 +29,7 @@ If the wrong index is passed in, the output of this function will be incorrect, 
 A simple check that the correct index has been passed to the function is to examine the output and make sure that the field that should correspond with the ISD is one (signifying that the ISD was divided by itself).
 
 Output format can either as means of the samples for each pi parameter or the transformed samples from the posterior distribution for that parameter.
-Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources.
+Harrison et al. 2020. 'The quest for absolute abundance: the use of internal standards for DNA-based community ecology' Molecular Ecology Resources.
 }
 \examples{
 #simulate an OTU table

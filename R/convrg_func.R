@@ -192,7 +192,7 @@ cnvrg_VI <- function(countData,
 #' This function only works for pi parameters.
 #' 
 #' The output of this function gives the proportion of samples that were greater than zero after subtracting the two relevant posterior distributions. Therefore, values that are very large or very small denote a high certainty that the distributions subtracted differ.
-#' If this concept is not clear, then read Harrison et al. 2020 "Dirichlet‐multinomial modeling outperforms alternatives for analysis of microbiome and other ecological count data" in Molecular Ecology Resources. 
+#' If this concept is not clear, then read Harrison et al. 2020 'Dirichlet‐multinomial modeling outperforms alternatives for analysis of microbiome and other ecological count data' in Molecular Ecology Resources. 
 #' For a simple explanation, see this video: https://use.vg/OSVhFJ
 #' 
 #' The posterior probability distribution of differences is also output. These samples can be useful for plotting or other downstream analyses.
@@ -361,7 +361,7 @@ diff_abund <- function(model_out, countData, prob_threshold = 0.05){
 #'
 #' Calculate Shannon's or Simpson's indices for each replicate while propagating uncertainty in relative abundance estimates through calculations.
 #'
-#' Takes as input either a fitted Stan oject from the cnvrg_HMC or cnvrg_VI functions, or the output of isd_transform. 
+#' Takes as input either a fitted Stan object from the cnvrg_HMC or cnvrg_VI functions, or the output of isd_transform. 
 #' As always, doublecheck the results to ensure the function has output reasonable values. Note that because there are no zero values 
 #' and all proportion estimates are non-zero there is a lot of information within the modeled data. Because diversity entropies
 #' are measures of information content, this means there will be a much higher entropy estimate for modeled data than the raw
@@ -676,12 +676,12 @@ indexer <- function(x){
 #' A simple check that the correct index has been passed to the function is to examine the output and make sure that the field that should correspond with the ISD is one (signifying that the ISD was divided by itself).
 #' 
 #' Output format can either as means of the samples for each pi parameter or the transformed samples from the posterior distribution for that parameter.
-#' Harrison et al. 2020. The quest for absolute abundance: the use of internal standards for DNA-based community ecology. Molecular Ecology Resources.
+#' Harrison et al. 2020. 'The quest for absolute abundance: the use of internal standards for DNA-based community ecology' Molecular Ecology Resources.
 #' @param model_out Output of CNVRG modeling functions, including cnvrg_HMC and cnvrg_VI
 #' @param countData The count data modeled.
 #' @param isd_index The index for the field with information for the internal standard.
 #' @param format The output format. Can be either 'or 'samples' or 'ml'. "samples" outputs samples from the posterior probability distribution, the last option ("ml") outputs the mean of posterior samples for each parameter.
-#' @return A dataframe, or list, specifying either point estimates for each feature in each treatment group (if output format is 'ml') or samples from the posteriof (if output format is 'samples').
+#' @return A dataframe, or list, specifying either point estimates for each feature in each treatment group (if output format is 'ml') or samples from the posterior (if output format is 'samples').
 #' @examples
 #' #simulate an OTU table
 #' com_demo <-matrix(0, nrow = 10, ncol = 10)
