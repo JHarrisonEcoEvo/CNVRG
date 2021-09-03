@@ -110,7 +110,7 @@ entropies <- diversity_calc(model_out = modelOut, countData = fungi,
                             entropy_measure = 'shannon',equivalents = T)
 ```
 
-We provide limited plotting functions for posteriors as we suspect users will have formatting desires that preclude the use of canned functions. However, a simple way to plot posteriors is via density plots using base 'R'. For example: 
+A simple way to plot posteriors is via density plots using base 'R'. For example: 
 ```{r}
 plot(density(entropies[[1]][[1]]),
      xlab = "Entropy",
