@@ -1,5 +1,5 @@
 Package: CNVRG
-Title: Dirichlet-Multinomial Modelling of Relative Abundance Data
+Title: Dirichlet Multinomial Modeling of Relative Abundance Data
 Version: 1.0.0
 Authors@R: 
     c(person(given = "Joshua",
@@ -20,7 +20,7 @@ Authors@R:
            role = "aut",
            comment = c(ORCID = "0000-0003-4222-8858")))
 Maintainer: Joshua Harrison <joshua.grant.harrison@gmail.com>
-Description: Implements Dirichlet multinomial modelling of relative abundance data using functionality provided by the 'Stan' software. The purpose of this package is to provide a user friendly way to interface with 'Stan' that is suitable for those new to modelling. For more regarding the modelling mathematics and computational techniques we use see our publication in Molecular Ecology Resources titled "Dirichlet multinomial modelling outperforms alternatives for analysis of ecological count data" (Harrison et al. 2020 <doi:10.1111/1755-0998.13128>).
+Description: Implements Dirichlet multinomial modeling of relative abundance data using functionality provided by the 'Stan' software. The purpose of this package is to provide a user friendly way to interface with 'Stan' that is suitable for those new to modeling. For more regarding the modeling mathematics and computational techniques we use see our publication in Molecular Ecology Resources titled 'Dirichlet multinomial modeling outperforms alternatives for analysis of ecological count data' (Harrison et al. 2020 <doi:10.1111/1755-0998.13128>).
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
@@ -28,11 +28,21 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Biarch: true
 Depends: R (>= 3.4.0)
-Imports: methods, Rcpp (>= 0.12.0), rstan (>=
-        2.18.1), vegan, rstantools (>= 2.1.1), tibble
-LinkingTo: BH (>= 1.66.0), Rcpp (>= 0.12.0), RcppEigen (>= 0.3.3.3.0),
-        RcppParallel (>= 5.0.1), rstan (>= 2.18.1), StanHeaders (>=
-        2.18.0)
+Imports: 
+    methods,
+    Rcpp (>= 0.12.0),
+    RcppParallel (>= 5.0.1),
+    rstan (>= 2.18.1),
+    rstantools (>= 2.1.1),
+    tibble,
+    vegan
+LinkingTo: 
+    BH (>= 1.66.0),
+    Rcpp (>= 0.12.0),
+    RcppEigen (>= 0.3.3.3.0),
+    RcppParallel (>= 5.0.1),
+    rstan (>= 2.18.1),
+    StanHeaders (>= 2.18.0)
 SystemRequirements: GNU make
 Repository: CRAN
 NeedsCompilation: yes

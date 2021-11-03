@@ -1,6 +1,6 @@
 # CNVRG
 
-A package to provide a user-friendly wrapper for 'RStan' to implement Dirichlet-multinomial modeling of count data.
+A package to provide a user-friendly wrapper for 'RStan' to implement Dirichlet multinomial modeling of count data.
 
 This package is managed by Joshua Harrison.
 
