@@ -3,9 +3,9 @@ title: "CNVRG vignette"
 author: "Joshua Harrison"
 date: "`r Sys.Date()`"
 output:
-  pdf_document: default
   html_document:
     df_print: paged
+  pdf_document: default
 vignette: |
   %\VignetteIndexEntry{CNVRG vignette} %\VignetteEngine{knitr::rmarkdown} \usepackage[utf8]{inputenc}
 ---
@@ -21,17 +21,19 @@ library(rstan)
 ```
 'CNVRG' facilitates Dirichlet multinomial modelling of relative abundance data, such as those generated via sequencing of microbiomes. We envision the software being of particular use for microbial and community ecologists. 'CNVRG' wraps functionality provided by 'RStan' and 'Stan' in a simple to use interface (Stan Development Team 2018). Credit should be given to the 'Stan' team if 'CNVRG' is used. Additionally, please cite the 'CNVRG' package and associated Molecular Ecology Resources paper (Harrison et al. 2020a). Thanks!
 
-If you are new to statistical modeling and want a brief primer that explains the rationale behind the use of the Dirichlet and multinomial distributions for count data see this video that I made: https://use.vg/OSVhFJ
+If you are new to statistical modelling and want a brief primer that explains the rationale behind the use of the Dirichlet and multinomial distributions for count data see this video that I made: https://use.vg/OSVhFJ
 
-In this vignette, we demonstrate how to use 'CNVRG' on a simple dataset. We urge new users to carefully examine the files used. Data must be formatted properly for 'CNVRG' to work!
+In this vignette, we demonstrate how to use 'CNVRG' on a simple dataset. We urge new users to carefully examine the files used. Like any software, data must be formatted properly for 'CNVRG' to work and if you have problems check input format first!
 
-We also recommend that application of 'CNVRG' to larger data (e.g., a matrix of several thousand by several hundred) be performed remotely as modelling can take some compute time. As a head's up to new users, it is worth subsetting one's data and ensuring code correctness and model completion prior to analyzing a large dataset.
+We also recommend that application of 'CNVRG' to larger data (e.g., a matrix of several thousand by several hundred) be performed remotely as modelling can take some compute time. As a head's up to new users, it is worth subsetting one's data and ensuring code correctness and model completion when using the smaller, subsetted data prior to analyzing a large dataset.
 
 ```{r load myData, include=FALSE}
 load("../data/fungi.rda")
 ```
 
 Data to be processed by 'CNVRG' should look like the following matrix, with a treatment field followed by fields containing count data. Note that count data must be integers and must be read by 'R' as such (not factors or strings). The treatment field must be encoded as a factor or string. Use str() to determine the format of your data. See 'DataCamp', 'swirl' or other 'R' tutorials if you do not know how to change the encoded format for your data.
+
+If you have zeros in your data (like we all do) then these can cause problems because the log of zero is not defined. Therefore, you should add a constant to all your data (i.e., 1). If you are concerned that this could cause problems, then perhaps try running the analysis with a few constants and see if your inference is affected. How to deal with zeros in community ecology data is a topic of research, if you have suggestions let me know.
 ```{r}
 fungi[1:3,1:5]
 ```
@@ -40,7 +42,7 @@ Before modelling it is important to ensure that the data are organized such that
 
 For instance, consider:
 ```{r}
-fungi$treatment
+print(fungi$treatment)
 ```
 All replicates for each of the four treatment groups in these example data are placed together in the matrix. The first and last indices for replicates in each of these treatment groups are used to tell the function which rows in the matrix correspond to a particular sampling group. See the vectors passed in as arguments for 'starts' and 'ends' in the example immediately below. The 'indexer' function is a convenient way to specify starting and ending indices. This function takes as input a vector with treatments and outputs a named list with two elements, one element with starting indices and one with ending indices. For a demonstration of how it works, see the next code chunk. You can of course specify the starting and ending indices as a vector if you wish. An example of vector style specification is commented out in the code below.
 
@@ -59,7 +61,7 @@ modelOut <- cnvrg_HMC(countData = fungi,
        params_to_save = c("pi", "p"))
 ```
 
-Incidentally, if desired, information can be shared among multiple treatment groups through rearranging the data and specifying new start and end indices. For example, here we share information among replicates within a treatment group. We specify the indices for the first replicate in each sampling group via the vector provided as an argument to 'starts'. Similarly, the indices for the last replicate in each treatment group are fed in a as a vector to 'ends'. We have four elements in each of these vectors because there are four treatment groups. If instead, we wished to combine the first two treatment groups and share information accordingly, then the start and end vectors could be modifed to be 'starts = c(1,76,113)' and 'ends = c(75,112,148)' respectively.
+Incidentally, if desired, information can be shared among multiple treatment groups through rearranging the data and specifying new start and end indices. For example, here we share information among replicates within a treatment group. We specify the indices for the first replicate in each sampling group via the vector provided as an argument to 'starts'. Similarly, the indices for the last replicate in each treatment group are fed in a as a vector to 'ends'. We have four elements in each of these vectors because there are four treatment groups. If instead, we wished to combine the first two treatment groups and share information accordingly, then the start and end vectors could be modified to be 'starts = c(1,76,113)' and 'ends = c(75,112,148)' respectively.
 
 After running the model it is important to check convergence statistics. One way to do this is with summary (from the RStan package).
 
@@ -73,7 +75,7 @@ At the moment, diagnostic tools are not well developed for variational inference
 
 ## Using estimates of relative abundances
 
-If model diagnostics seem sufficient then analyses can be performed using relative abundance estimates. Use the 'extract' function from 'RStan' to assign samples for parameters of interest to an object. These samples can then be passed to downstream analyses.
+If model diagnostics seem sufficient then further analyses can be performed. Use the 'extract' function from 'RStan' to assign samples for parameters of interest to an object. These samples can then be passed to downstream analyses.
 
 While we advocate using samples describing posterior distributions for parameters of interest whenever possible, we acknowledge that sometimes it is convenient to obtain point estimates for those parameters. To do so for pi parameters we can use the 'CNVRG' function 'extract_point_estimate' like so:
 
@@ -88,17 +90,21 @@ One common analysis is to compare relative abundances of features between treatm
 diff_abund_test <- diff_abund(model_out = modelOut, countData = fungi)
 ```
 
-This function subtracts the posterior distribution of the pi paramater for each feature in one treatment group from the pi parameter distribution in other treatment groups. The function outputs a matrix of proportions that describes the proportion of the distribution of differences that is greater than zero, for each comparison. In this example, the comparison between treatment 1 and treatment 3 provided the following results.
+This function subtracts the posterior distribution of the pi parameter for each feature in one treatment group from the pi parameter distribution in other treatment groups. The function outputs a matrix of proportions that describes the proportion of the distribution of differences that is greater than zero, for each comparison. In this example, the comparison between treatment 1 and treatment 3 provided the following results.
 
 ```{r}
-diff_abund_test[3,]
+diff_abund_test[[1]][,1:2]
 ```
 
-This means that for Otu 4 nearly 100% of the samples obtained after subtracting the pi distributions for that Otu from treatment 1 and treatment 3 were greater than zero. This means that the there is high certainty that the pi value for Otu 4 in treatment 1 was greater than in treatment 3. Stated another way, this means that the relative abundance of Otu 4 was greater in treatment 1 than in treatment 3.
+This means that for Otu 4 nearly 100% of the samples obtained after subtracting the pi distributions for that Otu from treatment 1 from treatment 2 were greater than zero (and conversely when subtracting treatment 2 from 1 zero of them were greater than zero). This means that the there is high certainty that the pi value for Otu 4 in treatment 1 was greater than in treatment 2. Stated another way, this means that the relative abundance of Otu 4 was greater in treatment 1 than in treatment 2.
 
-However, only approximately a third of samples for the distribution of differences for Otu 58 were above zero. So we have much less certainty that this Otu differed in relative abundance between treatment group 1 and treatment group 3.
+```{r}
+diff_abund_test[[1]][,c(1,3)]
+```
 
-Because the 'diff_abund' function provides insight into the proportion of samples ABOVE zero, values that are very large and very small (e.g., >0.95 or <0.05) denote a high certainty of an effect of treatment group.
+The same was true for Otu 58. However, if we compare treatment groups 1 and 3 for this OTU we see that somewhere between a quarter and a third of samples were above zero in the distribution of differences. So we have much less certainty that this Otu differed in relative abundance between treatment group 1 and treatment group 3.
+
+Because the 'diff_abund' function provides insight into the proportion of samples ABOVE zero, values that are very large and very small (e.g., >0.95 or <0.05) denote a high certainty of an effect of treatment group (since we also are interested in cases when few samples are above zero).
 
 ## Diversity calculation
 
@@ -125,11 +131,14 @@ If an internal standard (ISD) has been used, then it is a simple matter to trans
 We have provided a simple function in 'CNVRG' called 'isd_transform' that facilitates the aforementioned transformation. Users must specify which field corresponds to the ISD. For the sake of example, let's say that the second index corresponds with the ISD.
 
 ```{r}
-transformed_data <- isd_transform(model_output = modelOut, countData = fungi, isd_index = 2)
+transformed_data <- isd_transform(model_out = modelOut, countData = fungi, isd_index = 2)
 ```
 
-It is worth checking that the correct index for the ISD was provided. Examine the output and make sure that the field for the index is filled with ones and that field is indeed the ISD. Remember when determining the appropriate index to account for the fact that the original data had sample names in field one (this field should not be counted when determining an appropriate index).
+It is worth checking that the correct index for the ISD was provided. Examine the output and make sure that the field for the index is filled with ones and that field is indeed the ISD.
+
 Transformed data can be used in the 'diversity_calc', 'diff_abund', and 'extract_point_estimates' functions.
+
+A final note: CNVRG is not my focus as a researcher, still I will support this software for the time being. I may post a few updates here and there and I can respond to questions, just email me. If you use this software consider citing it and the associated paper (2020a below). Cheers!
 
 ## Literature cited 
 
