@@ -237,7 +237,8 @@ diff_abund <- function(model_out, countData, prob_threshold = 0.05){
     stop(
       "There is only one treatment group.\n
       Can't compare relative abundances across groups with only one group!\n
-      Is a list of pi parameter samples being passed in? See the vignette."
+      Is a list of Dirichlet (pi) parameter samples being passed in? If you have one group and are
+      trying to use multinomial parameter estimates then this function does not work. See the vignette."
     )
   }
   
@@ -317,12 +318,17 @@ diff_abund <- function(model_out, countData, prob_threshold = 0.05){
   #Determine those features that differed between treatment comparisons. 
   certain_diff_features_list <- list()
   for(m in 1:nrow(output)){
+    #choose a row from our output table that has probabilities that certain OTUs differ between
+    #certain treatment groups
     selected_comparison_output <- output[m,]
     
+    #transform to so that 0.96 is regarded as 0.04, which makes it easier
+    #to sort by probability
     probs <- NA
     for(i in 2:length(selected_comparison_output)){
       if(selected_comparison_output[1,i] > .5){
         probs[i] <- 1 - selected_comparison_output[1,i]
+        
       }else{
         probs[i] <- selected_comparison_output[1,i]
       }
@@ -330,16 +336,21 @@ diff_abund <- function(model_out, countData, prob_threshold = 0.05){
     
     certain_diff_features <- names(output)[probs <= prob_threshold]
     effectSizes_cert_differences <- effects[m, names(effects) %in% certain_diff_features]
+    names(effectSizes_cert_differences) <- names(effects)[names(effects) %in% certain_diff_features]
     
+    #add names
     certain_diff_features <- data.frame(cbind(certain_diff_features, 
                                               probs[probs <= prob_threshold]))
+    #remove the NA in the first row
     certain_diff_features <- certain_diff_features[-is.na(certain_diff_features),]
     
     names(certain_diff_features) <- c("feature_that_differed", "probability_of_difference")
     
+    #add effect sizes
     certain_diff_features <- data.frame(certain_diff_features, enframe(
       unlist( 
-        effectSizes_cert_differences[names(effectSizes_cert_differences) %in% certain_diff_features$feature_that_differed]))
+        effectSizes_cert_differences[names(effectSizes_cert_differences) %in% certain_diff_features$feature_that_differed])
+      )
     )
     if(any((certain_diff_features$name == certain_diff_features$feature_that_differed) == F)){
       print("ERROR: the order of OTUs that effect sizes were calculated for does not match expectations. Something deep is wrong and you will need to dig in to the source code to fix it.")
