@@ -8,7 +8,6 @@ cnvrg_HMC(
   countData,
   starts,
   ends,
-  treatments,
   algorithm = "NUTS",
   chains = 2,
   burn = 500,
@@ -21,11 +20,9 @@ cnvrg_HMC(
 \arguments{
 \item{countData}{A matrix or data frame of counts.The first field should be sample names and the subsequent fields should be integer data. Data should be arranged so that the first n rows correspond to one treatment group and the next n rows correspond with the next treatment group, and so on. The row indices for the first and last sample in these groups are fed into this function via 'starts' and 'ends'.}
 
-\item{starts}{A vector defining the indices that correspond to the first sample in each treatment group. The indexer function can help with this. For a single treatment group, the values for starts and ends are discarded.}
+\item{starts}{A vector defining the indices that correspond to the first sample in each treatment group. The indexer function can help with this.}
 
-\item{ends}{A vector defining the indices that correspond to the last sample in each treatment group. The indexer function can help with this. For a single treatment group, the values for starts and ends are discarded.}
-
-\item{treatments}{The number of sampling groups. Integer from 1 to however many you like. The total number of treatments must match the number of indices provided to starts and ends.}
+\item{ends}{A vector defining the indices that correspond to the last sample in each treatment group. The indexer function can help with this.}
 
 \item{algorithm}{The algorithm to use when sampling. Either 'NUTS' or 'HMC' or 'Fixed_param'. If unsure, then be like a squirrel. This is "No U turn sampling". The abbreviation is from 'Stan'.}
 
@@ -57,4 +54,26 @@ Warning: depending upon size of data to be analyzed this function can take a ver
 }
 \examples{
 #simulate an OTU table
+com_demo <-matrix(0, nrow = 10, ncol = 10)
+com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
+com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
+fornames <- NA
+for(i in 1:length(com_demo[1,])){
+fornames[i] <- paste("otu_", i, sep = "")
+}
+sample_vec <- NA
+for(i in 1:length(com_demo[,1])){
+sample_vec[i] <- paste("sample", i, sep = "_")
+}
+com_demo <- data.frame(sample_vec, com_demo)
+names(com_demo) <- c("sample", fornames)
+
+#These are toy data, many more samples, multiple chains, and a longer burn
+#are likely advisable for real data.
+fitstan_HMC <- cnvrg_HMC(com_demo,starts = c(1,6),
+ends=c(5,10),
+chains = 1,
+burn = 100,
+samples = 150,
+thinning_rate = 2)
 }

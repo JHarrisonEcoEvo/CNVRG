@@ -16,17 +16,15 @@ cnvrg_VI(
 \arguments{
 \item{countData}{A matrix or data frame of counts.The first field should be sample names and the subsequent fields should be integer data. Data should be arranged so that the first n rows correspond to one treatment group and the next n rows correspond with the next treatment group, and so on. The row indices for the first and last sample in these groups are fed into this function via 'starts' and 'ends'.}
 
-\item{starts}{A vector defining the indices that correspond to the first sample in each treatment group. The indexer function can help with this. For a single treatment group, the values for starts and ends are discarded.}
+\item{starts}{A vector defining the indices that correspond to the first sample in each treatment group. The indexer function can help with this.}
 
-\item{ends}{A vector defining the indices that correspond to the last sample in each treatment group. The indexer function can help with this. For a single treatment group, the values for starts and ends are discarded.}
+\item{ends}{A vector defining the indices that correspond to the last sample in each treatment group. The indexer function can help with this.}
 
 \item{algorithm}{The algorithm to use when performing variational inference. Either 'meanfield' or 'fullrank'. The former is the default.}
 
 \item{output_samples}{The number of samples from the approximated posterior to save.}
 
 \item{params_to_save}{The parameters from which to save samples. Can be 'p', 'pi', 'theta'.}
-
-\item{treatments}{The number of sampling groups. Integer from 1 to however many you like. The total number of treatments must match the number of indices provided to starts and ends.}
 }
 \value{
 A fitted 'Stan' object that includes the samples from the parameters designated.
