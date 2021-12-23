@@ -90,7 +90,11 @@ cnvrg_HMC <- function(countData,
   }
   if( treatments == 1){
     print("IMPORTANT: the single-level model is being used because there is only one treatment group specified via starts and ends. The single-level model has one Dirichlet prior that shares information among all samples.")
-    fitstan_HMC <-rstan::sampling(stanmodels$dm_oneLevel.stan,
+    model1 <- stan_model("./inst/stan/dm_oneLevel.stan") #Path likely will break as the relative position will be innaccurate
+    #when someone tries to install. Right now just seeing if this even works.
+    
+    fitstan_HMC <-rstan::sampling(model_code = model1,
+                                 #model_name = "dm_oneLevel.stan",
                                   data =list("datamatrix" = countData[,2:dim(countData)[2]],
                                              "nreps" = nrow(countData),
                                              "notus" = ncol(countData[,2:dim(countData)[2]]),
