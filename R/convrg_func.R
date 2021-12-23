@@ -10,44 +10,48 @@
 #' Warning: data must be input in the correct organized format or this function will not provide accurate results. See vignette if you are unsure how to organize data.
 #' Warning: depending upon size of data to be analyzed this function can take a very long time to run.
 #' @param countData A matrix or data frame of counts.The first field should be sample names and the subsequent fields should be integer data. Data should be arranged so that the first n rows correspond to one treatment group and the next n rows correspond with the next treatment group, and so on. The row indices for the first and last sample in these groups are fed into this function via 'starts' and 'ends'.
-#' @param starts A vector defining the indices that correspond to the first sample in each treatment group. The indexer function can help with this.
-#' @param ends A vector defining the indices that correspond to the last sample in each treatment group. The indexer function can help with this.
+#' @param starts A vector defining the indices that correspond to the first sample in each treatment group. The indexer function can help with this. For a single treatment group, the values for starts and ends are discarded.
+#' @param ends A vector defining the indices that correspond to the last sample in each treatment group. The indexer function can help with this. For a single treatment group, the values for starts and ends are discarded.
 #' @param algorithm The algorithm to use when sampling. Either 'NUTS' or 'HMC' or 'Fixed_param'. If unsure, then be like a squirrel. This is "No U turn sampling". The abbreviation is from 'Stan'.
 #' @param chains The number of chains to run.
+#' @param cores The number of cores to use.
 #' @param burn The warm up or 'burn in' time.
+#' @param params_to_save The parameters from which to save samples. Can be 'p', 'pi', 'theta'.
 #' @param samples How many samples from the posterior to save.
 #' @param thinning_rate Thinning rate to use during sampling.
-#' @param cores The number of cores to use.
-#' @param params_to_save The parameters from which to save samples. Can be 'p', 'pi', 'theta'.
+#' @param treatments The number of sampling groups. Integer from 1 to however many you like. The total number of treatments must match the number of indices provided to starts and ends.
 #' @return A fitted 'Stan' object that includes the samples from the parameters designated.
 #' @examples
 #' #simulate an OTU table
-#' com_demo <-matrix(0, nrow = 10, ncol = 10)
-#' com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
-#' com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
-#' fornames <- NA
-#' for(i in 1:length(com_demo[1,])){
-#' fornames[i] <- paste("otu_", i, sep = "")
-#' }
-#' sample_vec <- NA
-#' for(i in 1:length(com_demo[,1])){
-#' sample_vec[i] <- paste("sample", i, sep = "_")
-#' }
-#' com_demo <- data.frame(sample_vec, com_demo)
-#' names(com_demo) <- c("sample", fornames)
-#' 
-#' #These are toy data, many more samples, multiple chains, and a longer burn
-#' #are likely advisable for real data.
-#' fitstan_HMC <- cnvrg_HMC(com_demo,starts = c(1,6),
-#' ends=c(5,10),
-#' chains = 1,
-#' burn = 100,
-#' samples = 150,
-#' thinning_rate = 2)
+# com_demo <-matrix(0, nrow = 10, ncol = 10)
+# com_demo[1:5,] <- c(rep(3,5), rep(7,5)) #Alternates 3 and 7
+# com_demo[6:10,] <- c(rep(7,5), rep(3,5)) #Reverses alternation
+# fornames <- NA
+# for(i in 1:length(com_demo[1,])){
+# fornames[i] <- paste("otu_", i, sep = "")
+# }
+# sample_vec <- NA
+# for(i in 1:length(com_demo[,1])){
+# sample_vec[i] <- paste("sample", i, sep = "_")
+# }
+# com_demo <- data.frame(sample_vec, com_demo)
+# names(com_demo) <- c("sample", fornames)
+# 
+# #These are toy data, many more samples, multiple chains, and a longer burn
+# #are likely advisable for real data.
+# fitstan_HMC <- cnvrg_HMC(com_demo,
+# starts = c(1,6),
+# ends=c(5,10),
+# treatments = 2,
+# chains = 1,
+# burn = 100,
+# samples = 150,
+# thinning_rate = 2)
 #' @export
 cnvrg_HMC <- function(countData,
                       starts,
                       ends,
+                      treatments,
                       algorithm = "NUTS",
                       chains = 2,
                       burn = 500,
@@ -64,7 +68,7 @@ cnvrg_HMC <- function(countData,
     stop("Algorithm must be one of 'NUTS', 'HMC', 'Fixed_param'. Be like a squirrel.")
   }
   if(chains > 8){
-    print("Why so many chains? You do you though.")
+    print("Why so many chains? As you like.")
   }
   if(any(c("pi", "p","theta") %in% params_to_save) == F){
     print("Parameters that can be saved are one of 'pi' or 'p' or 'theta'. If you want to save more than one, then pass in a vector of those you want (e.g., c('pi', 'p')).")
@@ -84,23 +88,46 @@ cnvrg_HMC <- function(countData,
           just how Stan/Rstan does it. So if you want 500 burn in and 1000 samples, then
           choose burn in = 500 and samples = 1500.")
   }
-  treatments <- length(starts)
-  fitstan_HMC <-rstan::sampling(stanmodels$dm,
-                                data =list("datamatrix" = countData[,2:dim(countData)[2]],
-                                           "nreps" = nrow(countData),
-                                           "notus" = ncol(countData[,2:dim(countData)[2]]),
-                                           "N" = treatments,
-                                           "start" = starts,
-                                           "end" = ends),
-                                algorithm = algorithm, #
-                                chains = chains,
-                                warmup = burn,
-                                iter = samples,
-                                thin = thinning_rate,
-                                cores = cores,
-                                seed = 123,
-                                pars <- params_to_save,
-                                verbose = T)
+  if( treatments == 1){
+    print("IMPORTANT: the single-level model is being used because there is only one treatment group specified via starts and ends. The single-level model has one Dirichlet prior that shares information among all samples.")
+    fitstan_HMC <-rstan::sampling(stanmodels$dm_oneLevel.stan,
+                                  data =list("datamatrix" = countData[,2:dim(countData)[2]],
+                                             "nreps" = nrow(countData),
+                                             "notus" = ncol(countData[,2:dim(countData)[2]]),
+                                             #"N" = treatments,
+                                             #"start" = starts,
+                                             #"end" = ends
+                                             ),
+                                  algorithm = algorithm, #
+                                  chains = chains,
+                                  warmup = burn,
+                                  iter = samples,
+                                  thin = thinning_rate,
+                                  cores = cores,
+                                  seed = 123,
+                                  pars <- params_to_save,
+                                  verbose = T)
+  }else{
+    print(paste("A model with ",treatments," sampling groups is being specified." ))
+    fitstan_HMC <-rstan::sampling(stanmodels$dm,
+                                  data =list("datamatrix" = countData[,2:dim(countData)[2]],
+                                             "nreps" = nrow(countData),
+                                             "notus" = ncol(countData[,2:dim(countData)[2]]),
+                                             "N" = treatments,
+                                             "start" = starts,
+                                             "end" = ends
+                                  ),
+                                  algorithm = algorithm, #
+                                  chains = chains,
+                                  warmup = burn,
+                                  iter = samples,
+                                  thin = thinning_rate,
+                                  cores = cores,
+                                  seed = 123,
+                                  pars <- params_to_save,
+                                  verbose = T)
+  }
+  
   return(fitstan_HMC)
   }
 
@@ -115,11 +142,12 @@ cnvrg_HMC <- function(countData,
 #' Warning: data must be input in the correct organized format or this function will not provide accurate results. See vignette if you are unsure how to organize data.
 #' Warning: depending upon size of data to be analyzed this function can take a very long time to run.
 #' @param countData A matrix or data frame of counts.The first field should be sample names and the subsequent fields should be integer data. Data should be arranged so that the first n rows correspond to one treatment group and the next n rows correspond with the next treatment group, and so on. The row indices for the first and last sample in these groups are fed into this function via 'starts' and 'ends'.
-#' @param starts A vector defining the indices that correspond to the first sample in each treatment group. The indexer function can help with this.
-#' @param ends A vector defining the indices that correspond to the last sample in each treatment group. The indexer function can help with this.
+#' @param starts A vector defining the indices that correspond to the first sample in each treatment group. The indexer function can help with this. For a single treatment group, the values for starts and ends are discarded.
+#' @param ends A vector defining the indices that correspond to the last sample in each treatment group. The indexer function can help with this. For a single treatment group, the values for starts and ends are discarded.
 #' @param algorithm The algorithm to use when performing variational inference. Either 'meanfield' or 'fullrank'. The former is the default.
 #' @param output_samples The number of samples from the approximated posterior to save.
 #' @param params_to_save The parameters from which to save samples. Can be 'p', 'pi', 'theta'.
+#' @param treatments The number of sampling groups. Integer from 1 to however many you like. The total number of treatments must match the number of indices provided to starts and ends.
 #' @return A fitted 'Stan' object that includes the samples from the parameters designated.
 #' @examples
 #' #simulate an OTU table
@@ -168,20 +196,41 @@ cnvrg_VI <- function(countData,
   if(any(countData == 0)){
     stop("Zeros exist in the data. A pseudocount (e.g., 1) should be added to all of the data to avoid taking the log of zero.")
   }
-  treatments <- length(starts)
+  if( treatments == 1){
+    print("IMPORTANT: the single-level model is being used because there is only one treatment group specified via starts and ends. The single-level model has one Dirichlet prior that shares information among all samples.")
+    fitstan_VI <- rstan::vb(stanmodels$dm_oneLevel.stan,
+      data = list(
+        "datamatrix" = countData[, 2:dim(countData)[2]],
+        "nreps" = nrow(countData),
+        "notus" = ncol(countData[, 2:dim(countData)[2]])
+      # "N" = treatments,
+      #  "start" = starts,
+      # "end" = ends
+      ),
+      algorithm = algorithm,
+      output_samples = output_samples,
+      check_data = T,
+      seed = 123,
+      pars <-
+        params_to_save
+    )
+  }else{
+    print(paste("A model with ",treatments," sampling groups is being specified." ))
+    fitstan_VI <-rstan::vb(stanmodels$dm,
+                           data =list("datamatrix" = countData[,2:dim(countData)[2]],
+                                      "nreps" = nrow(countData),
+                                      "notus" = ncol(countData[,2:dim(countData)[2]]),
+                                      "N" = treatments,
+                                      "start" = starts,
+                                      "end" = ends),
+                           algorithm = algorithm,
+                           output_samples = output_samples,
+                           check_data = T,
+                           seed = 123,
+                           pars <- params_to_save)
+  }
   
-  fitstan_VI <-rstan::vb(stanmodels$dm,
-                         data =list("datamatrix" = countData[,2:dim(countData)[2]],
-                                    "nreps" = nrow(countData),
-                                    "notus" = ncol(countData[,2:dim(countData)[2]]),
-                                    "N" = treatments,
-                                    "start" = starts,
-                                    "end" = ends),
-                         algorithm = algorithm,
-                         output_samples = output_samples,
-                         check_data = T,
-                         seed = 123,
-                         pars <- params_to_save)
+
   return(fitstan_VI)
 }
 

@@ -23,7 +23,7 @@ This function only works for pi parameters.
 }
 \details{
 The output of this function gives the proportion of samples that were greater than zero after subtracting the two relevant posterior distributions. Therefore, values that are very large or very small denote a high certainty that the distributions subtracted differ.
-If this concept is not clear, then read Harrison et al. 2020 'Dirichlet‐multinomial modeling outperforms alternatives for analysis of microbiome and other ecological count data' in Molecular Ecology Resources.
+If this concept is not clear, then read Harrison et al. 2020 'Dirichlet multinomial modeling outperforms alternatives for analysis of microbiome and other ecological count data' in Molecular Ecology Resources.
 For a simple explanation, see this video: https://use.vg/OSVhFJ
 
 The posterior probability distribution of differences is also output. These samples can be useful for plotting or other downstream analyses.
