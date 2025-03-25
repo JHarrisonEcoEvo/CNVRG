@@ -29,10 +29,10 @@ RoxygenNote: 7.1.1
 Biarch: true
 Depends: R (>= 3.4.0)
 Imports: methods, Rcpp (>= 0.12.0), rstan (>=
-        2.18.1), vegan, rstantools (>= 2.1.1), tibble
+        2.26.0), vegan, rstantools (>= 2.1.1), tibble
 LinkingTo: BH (>= 1.66.0), Rcpp (>= 0.12.0), RcppEigen (>= 0.3.3.3.0),
-        RcppParallel (>= 5.0.1), rstan (>= 2.18.1), StanHeaders (>=
-        2.18.0)
+        RcppParallel (>= 5.0.1), rstan (>= 2.26.0), StanHeaders (>=
+        2.26.0)
 SystemRequirements: GNU make
 Repository: CRAN
 NeedsCompilation: yes

@@ -3,16 +3,16 @@ data {
   int<lower=1> nreps;
   int<lower=1> notus;
 
-  int<lower=1> start[N];
-  int<lower=1> end[N];
+  array[N] int<lower=1> start;
+  array[N] int<lower=1> end;
 
-  int datamatrix[nreps, notus];
+  array[nreps, notus] int datamatrix;
 }
 
 parameters {
-  real<lower=0> theta[N];
-  simplex[notus] pi[N];
-  simplex[notus] p[nreps];
+  array[N] real<lower=0> theta;
+  array[N] simplex[notus] pi;
+  array[nreps] simplex[notus] p;
 }
 
 model {
